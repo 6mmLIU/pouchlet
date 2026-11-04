@@ -18,19 +18,21 @@
   --blue-ink: #1b5fd6;
   --blue-soft: #e9f1fe;
   --bg: #ffffff;
-  --tint: #f3f7fd;
+  --tint: #f5f5f7;
   --card: #ffffff;
   --ink: #14161c;
   --muted: #5f6470;
-  --line: #e4e9f2;
+  --line: #e3e3e8;
   --red: #e5484d;
   --red-soft: #fdecec;
-  --shadow: 0 30px 60px -20px rgba(20, 50, 110, .22), 0 8px 20px -8px rgba(20, 50, 110, .12);
-  --lift: 0 24px 40px -18px rgba(20, 50, 110, .28), 0 4px 12px -4px rgba(20, 50, 110, .08);
-  /* three corner sizes, plus fully round pills */
-  --r1: 12px;
-  --r2: 20px;
-  --r3: 32px;
+  /* shadows like a macOS window: neutral, tight, with a hairline edge */
+  --shadow: 0 0 0 .5px rgba(0, 0, 0, .1), 0 14px 30px -10px rgba(0, 0, 0, .22), 0 2px 5px rgba(0, 0, 0, .06);
+  --lift: 0 0 0 .5px rgba(0, 0, 0, .08), 0 8px 20px -10px rgba(0, 0, 0, .18);
+  --win-drop: drop-shadow(0 12px 22px rgba(0, 0, 0, .16)) drop-shadow(0 1px 1.5px rgba(0, 0, 0, .22));
+  /* corners by level: small parts 6, macOS windows and panels 12, page-level containers 24; buttons are pills */
+  --r1: 6px;
+  --r2: 12px;
+  --r3: 24px;
   --ease: cubic-bezier(.16, 1, .3, 1);
   --spring: cubic-bezier(.34, 1.56, .64, 1);
   --round: ui-rounded, "SF Pro Rounded", -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
@@ -38,17 +40,17 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #111317; --tint: #171b22; --card: #1c2028; --ink: #eceef2; --muted: #a3a9b6;
-    --line: #2a303b; --blue: #5a9bff; --blue-ink: #8ab8ff; --blue-soft: #1d2a40; --red-soft: #3a1e22;
-    --shadow: 0 30px 60px -20px rgba(0, 0, 0, .6), 0 8px 20px -8px rgba(0, 0, 0, .4);
-    --lift: 0 24px 40px -18px rgba(0, 0, 0, .7), 0 4px 12px -4px rgba(0, 0, 0, .4);
+    --bg: #111113; --tint: #1a1a1d; --card: #1f1f23; --ink: #eceef2; --muted: #a3a9b6;
+    --line: #2e2e33; --blue: #5a9bff; --blue-ink: #8ab8ff; --blue-soft: #1d2a40; --red-soft: #3a1e22;
+    --shadow: 0 0 0 .5px rgba(255, 255, 255, .08), 0 14px 30px -10px rgba(0, 0, 0, .7);
+    --lift: 0 0 0 .5px rgba(255, 255, 255, .08), 0 8px 20px -10px rgba(0, 0, 0, .6);
   }
 }
 :root[data-theme="dark"] {
-  --bg: #111317; --tint: #171b22; --card: #1c2028; --ink: #eceef2; --muted: #a3a9b6;
-  --line: #2a303b; --blue: #5a9bff; --blue-ink: #8ab8ff; --blue-soft: #1d2a40; --red-soft: #3a1e22;
-  --shadow: 0 30px 60px -20px rgba(0, 0, 0, .6), 0 8px 20px -8px rgba(0, 0, 0, .4);
-  --lift: 0 24px 40px -18px rgba(0, 0, 0, .7), 0 4px 12px -4px rgba(0, 0, 0, .4);
+  --bg: #111113; --tint: #1a1a1d; --card: #1f1f23; --ink: #eceef2; --muted: #a3a9b6;
+  --line: #2e2e33; --blue: #5a9bff; --blue-ink: #8ab8ff; --blue-soft: #1d2a40; --red-soft: #3a1e22;
+  --shadow: 0 0 0 .5px rgba(255, 255, 255, .08), 0 14px 30px -10px rgba(0, 0, 0, .7);
+  --lift: 0 0 0 .5px rgba(255, 255, 255, .08), 0 8px 20px -10px rgba(0, 0, 0, .6);
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 80px; }
@@ -57,7 +59,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(-
 img { display: block; max-width: 100%; height: auto; }
 a { color: var(--blue); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
-:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 8px; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: var(--r1); }
 p, li { text-wrap: pretty; }
 
 /* language switch: everything is written twice, one copy is hidden */
@@ -75,10 +77,17 @@ h3 { font-size: 22px; line-height: 1.25; }
 .center .lead { margin-inline: auto; max-width: 640px; }
 .hl { color: var(--blue); white-space: nowrap; }
 
-/* scroll reveal: hidden only when the script is running */
-.js .rise { opacity: 0; transform: translateY(26px); }
-.rise { transition: opacity .8s var(--ease), transform .8s var(--ease), translate .4s var(--ease), box-shadow .4s var(--ease), border-color .4s var(--ease); }
-.js .rise.in { opacity: 1; transform: none; }
+/* ".rise" marks the demos the script starts when they scroll into view.
+   ".enter" slides a section's text and picture in once, from the picture's side. */
+.js .enter > * { opacity: 0; transform: translateY(28px); transition: opacity .7s ease-out, transform .9s cubic-bezier(.2, .7, .2, 1); }
+.js .enter > :nth-child(2) { transition-delay: .1s; }
+.js .enter > :nth-child(3) { transition-delay: .2s; }
+.js .enter > :nth-child(4) { transition-delay: .3s; }
+@media (min-width: 900px) {
+  .js .enter.split > :not(.text) { transform: translateX(56px); }
+  .js .enter.split.rev > :not(.text) { transform: translateX(-56px); }
+}
+.js .enter.seen > *, .js .enter.split.seen > :not(.text), .js .enter.split.rev.seen > :not(.text) { opacity: 1; transform: none; }
 
 /* file icons */
 .fi { width: 18px; height: 18px; flex: none; }
@@ -103,14 +112,12 @@ nav.top .links a.on { color: var(--blue); background: var(--blue-soft); }
 .progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%; background: var(--blue); transform-origin: 0 50%; transform: scaleX(0); }
 
 /* hero */
-.hero { text-align: center; padding: 64px 0 0; overflow: hidden; }
+.hero { text-align: center; padding: 64px 0 90px; overflow: hidden; }
 .hero h1 { font-size: clamp(44px, 7.4vw, 92px); line-height: 1.02; }
 .hero h1 .ln { display: block; overflow: hidden; padding: 0 .06em .12em; margin-bottom: -.12em; }
 .hero h1 .ln > span { display: inline-block; animation: lineUp 1.1s var(--ease) both; animation-delay: var(--d, 0ms); }
 .hero h1 .hl { white-space: normal; }
 @keyframes lineUp { from { transform: translateY(110%); } }
-.intro { animation: fadeUp .9s var(--ease) both; animation-delay: var(--d, 0ms); }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } }
 .hero .lead { max-width: 640px; margin-inline: auto; }
 .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
 .btn { display: inline-flex; align-items: center; gap: 10px; font: 600 17px var(--text); padding: 15px 26px; border-radius: 999px; border: 0; transition: transform .25s var(--spring), background .2s ease-out, box-shadow .3s var(--ease); }
@@ -123,14 +130,18 @@ nav.top .links a.on { color: var(--blue); background: var(--blue-soft); }
 .btn.ghost .arrow { transition: transform .3s var(--spring); }
 .btn.ghost:hover .arrow { transform: translateY(3px); }
 .meta { font-size: 14px; color: var(--muted); margin-top: 14px; }
-.formats { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 44px auto 0; max-width: 760px; }
-.formats span { font: 700 15px var(--round); letter-spacing: .04em; color: var(--blue); background: var(--blue-soft); padding: 9px 16px; border-radius: 999px; animation: pop .7s var(--spring) both; animation-delay: var(--d, 600ms); transition: translate .3s var(--spring), background .2s ease-out, color .2s ease-out; }
-.formats span:hover { translate: 0 -3px; background: var(--blue); color: #fff; }
-@keyframes pop { from { opacity: 0; transform: scale(.6) translateY(10px); } }
+/* format tiles: archive file icons, as in Finder, that drop into a pit and can be thrown around */
+.pit { position: relative; max-width: 1040px; margin: 40px auto 0; padding: 0 16px; display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 12px; }
+.pit.live { position: absolute; inset: 0; max-width: none; margin: 0; padding: 0; display: block; z-index: 0; -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 86%, transparent 100%); mask-image: linear-gradient(to bottom, #000 0, #000 86%, transparent 100%); }
+.tile { position: relative; display: block; width: 56px; height: 71px; user-select: none; -webkit-user-select: none; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .16)) drop-shadow(0 0 .5px rgba(0, 0, 0, .3)); }
+.tile svg { display: block; width: 100%; height: 100%; }
+.tile:not(.drawn) { width: auto; height: auto; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; font: 600 14px var(--text); filter: none; }
+.pit.live .tile { position: absolute; left: 0; top: 0; cursor: grab; touch-action: none; will-change: transform; z-index: 3; }
+.pit.live .tile.held { cursor: grabbing; }
 .hero-band { background: linear-gradient(to bottom, transparent 0 55%, var(--tint) 55% 100%); }
 .tilt-stage { perspective: 1800px; margin: 64px auto 0; width: min(100%, 1040px); }
 .tilt { transform-origin: 50% 100%; will-change: transform; }
-.hero-shot { width: 100%; filter: drop-shadow(var(--shadow)); }
+.hero-shot { width: 100%; filter: var(--win-drop); }
 
 /* the mascot (used in several poses) */
 .pouch-stage { width: min(330px, 72vw); margin: 0 auto 6px; }
@@ -139,7 +150,16 @@ nav.top .links a.on { color: var(--blue); background: var(--blue-soft); }
 .pouch-float { animation: bob 3.4s ease-in-out infinite; filter: drop-shadow(0 22px 26px rgba(30, 80, 170, .2)); }
 @keyframes bob { 50% { transform: translateY(-10px) rotate(-1.5deg); } }
 .pouch { position: relative; aspect-ratio: 720 / 606; cursor: pointer; -webkit-tap-highlight-color: transparent; transform-origin: 50% 100%; }
-.pouch > img, .pouch > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pouch > img, .pouch > svg, .pouch .art, .pouch .art > img, .pouch .art > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pouch { transform-origin: 50% 100%; }
+/* quick clicks count as double and triple clicks: never let them select or drag the artwork */
+.pouch, .pouch * { -webkit-user-select: none; user-select: none; -webkit-user-drag: none; }
+.pouch .art { transform-origin: 50% 100%; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1); }
+.pouch.tap:hover .art { transform: scale(1.03); }
+.pouch .smile { transition: transform .35s cubic-bezier(.34, 1.56, .64, 1); }
+.pouch.happy .smile { transform: translateY(-47px); }
+.pouch .spark { transform-box: fill-box; transform-origin: center; opacity: 0; transform: scale(.2) rotate(-40deg); transition: opacity .2s ease-out, transform .35s cubic-bezier(.34, 1.56, .64, 1); filter: drop-shadow(0 0 6px rgba(47, 123, 255, .6)); }
+.pouch.happy .spark { opacity: 1; transform: none; }
 .pouch .pupil { transform-box: fill-box; transform-origin: center; }
 .pouch .lid { transform: translateY(-220px); transition: transform .35s var(--ease); }
 .pouch.squint .lid { transform: translateY(-112px); }
@@ -158,55 +178,58 @@ section.block { padding: 120px 0; }
 section.tint { background: var(--tint); }
 .split { display: grid; grid-template-columns: 1fr; gap: 48px; align-items: center; }
 @media (min-width: 900px) { .split { grid-template-columns: 5fr 7fr; gap: 72px; } .split.rev { grid-template-columns: 7fr 5fr; } .split.rev .text { order: 2; } }
-.shot { filter: drop-shadow(var(--shadow)); }
+.shot { filter: var(--win-drop); }
 ul.ticks { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 12px; }
-ul.ticks li { padding-left: 34px; position: relative; color: var(--muted); }
-ul.ticks li::before { content: ""; position: absolute; left: 0; top: 4px; width: 22px; height: 22px; border-radius: 50%; background: var(--blue-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%232f7cf6' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat; }
-.js .text.rise ul.ticks li { opacity: 0; transform: translateX(-10px); transition: opacity .6s var(--ease), transform .6s var(--ease); transition-delay: calc(300ms + var(--i, 0) * 80ms); }
-.js .text.rise.in ul.ticks li { opacity: 1; transform: none; }
-ul.ticks b { color: var(--ink); font-weight: 600; }
+ul.ticks li { padding-left: 30px; position: relative; color: var(--ink); }
+ul.ticks li::before { content: ""; position: absolute; left: 2px; top: 7px; width: 16px; height: 16px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7' fill='none' stroke='%232f7cf6' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat; }
 
 /* 1. garbled names: before / after */
-.names { padding-top: 150px; }
-.ba-wrap { position: relative; max-width: 880px; margin: 150px auto 0; }
-.ba-wrap .peek { position: absolute; left: 50%; top: 0; width: 210px; transform: translate(-50%, -71%); z-index: 1; }
+.ba { position: relative; z-index: 2; filter: var(--win-drop); user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+.ba img { width: 100%; pointer-events: none; }
+.ba-bad { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--pos, 22%)) 0 0); }
+.ba-line { position: absolute; top: 0; bottom: 0; left: var(--pos, 22%); width: 2px; margin-left: -1px; background: var(--blue); pointer-events: none; z-index: 3; }
+.ba-line span { position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; background: var(--blue); box-shadow: 0 8px 18px -6px rgba(30, 80, 170, .55), 0 0 0 4px rgba(255, 255, 255, .9); transition: transform .3s var(--spring); }
+.ba-line span::before, .ba-line span::after { content: ""; position: absolute; top: 50%; width: 0; height: 0; border: 6px solid transparent; margin-top: -6px; }
+.ba-line span::before { left: 6px; border-right-color: #fff; }
+.ba-line span::after { right: 6px; border-left-color: #fff; }
+.ba:hover .ba-line span, .ba:active .ba-line span { transform: scale(1.12); }
+.ba input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; z-index: 4; -webkit-appearance: none; appearance: none; }
+.ba input:focus-visible ~ .ba-line span { outline: 3px solid var(--blue); outline-offset: 4px; }
+.ba-tag { position: absolute; bottom: -40px; z-index: 3; font: 700 12px var(--round); padding: 5px 10px; border-radius: 999px; pointer-events: none; transition: opacity .25s ease-out; }
+.ba-tag.bad { left: 6px; color: #fff; background: var(--red); }
+.ba-tag.good { right: 6px; color: #fff; background: var(--blue); }
+.shot.app { width: 100%; }
+.ql-shot { width: 100%; border-radius: var(--r2); box-shadow: var(--shadow); }
+.hint { font-size: 14px; color: var(--muted); margin: 18px 0 0; display: flex; align-items: center; gap: 8px; }
+.hint::before { content: "↔"; font: 700 15px var(--round); color: var(--blue); }
+.ba-wrap { position: relative; margin-top: 110px; }
+.ba-wrap .peek { position: absolute; left: 62%; top: 0; width: 170px; transform: translate(-50%, -71%); z-index: 1; }
 .ba-wrap .peek .pouch-float { animation: peekBob 3s ease-in-out infinite; filter: none; }
 @keyframes peekBob { 50% { transform: translateY(-5px); } }
-.win { position: relative; z-index: 2; background: var(--card); border: 1px solid var(--line); border-radius: var(--r2); box-shadow: var(--shadow); overflow: hidden; }
-.win-bar { display: flex; align-items: center; gap: 8px; padding: 14px 18px; border-bottom: 1px solid var(--line); background: var(--card); }
-.win-bar i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
-.win-bar i:nth-child(2) { background: #febc2e; }
-.win-bar i:nth-child(3) { background: #28c840; }
-.win-bar b { flex: 1; text-align: center; font: 600 14px var(--text); margin-right: 52px; }
-.flist { padding: 8px 0 14px; text-align: left; }
-.frow { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 9px 24px; font-size: 15px; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
-.frow:last-child { border-bottom: 0; }
-.frow .nm { display: flex; align-items: center; gap: 10px; min-width: 0; white-space: nowrap; }
-.frow .nm .nt { overflow: hidden; text-overflow: ellipsis; }
-.frow .sz { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
-.frow.l1 .nm { padding-left: 24px; }
-.frow.l2 .nm { padding-left: 48px; }
-.frow.head { font-size: 12px; font-weight: 600; color: var(--muted); padding-top: 4px; padding-bottom: 8px; }
-.win.bad .nt { color: var(--muted); }
-.nt { transition: color .3s ease-out; }
-.seg { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; margin: 26px auto 0; padding: 4px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--lift); z-index: 3; }
-.seg button { position: relative; z-index: 1; font: 600 15px var(--text); color: var(--muted); background: none; border: 0; padding: 9px 22px; border-radius: 999px; cursor: pointer; transition: color .25s ease-out; }
-.seg button[aria-pressed="true"] { color: #fff; }
-.seg-pill { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 999px; background: var(--blue); transition: transform .45s var(--spring), background .3s ease-out; }
-.seg.bad .seg-pill { background: var(--red); }
-.seg:not(.bad) .seg-pill { transform: translateX(100%); }
-.ba-note { text-align: center; font-size: 14px; color: var(--muted); margin-top: 22px; }
+
 
 /* 2. quick look */
-.ql { position: relative; max-width: 560px; width: 100%; margin-inline: auto; }
-.ql-panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--r2); box-shadow: var(--shadow); overflow: hidden; transition: opacity .7s var(--ease) .35s, transform .7s var(--spring) .35s; }
-.js .ql:not(.in) .ql-panel { opacity: 0; transform: scale(.92) translateY(14px); }
+.ql { position: relative; max-width: 640px; width: 100%; margin: 0 auto 90px; aspect-ratio: 640 / 440; }
+.finder { position: absolute; left: 0; top: 0; width: 76%; background: var(--card); border-radius: var(--r2); box-shadow: var(--shadow); overflow: hidden; }
+.finder .fbar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: color-mix(in srgb, var(--tint) 70%, var(--card)); border-bottom: 1px solid var(--line); }
+.finder .fbar i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
+.finder .fbar i:nth-child(2) { background: #febc2e; } .finder .fbar i:nth-child(3) { background: #28c840; }
+.finder .fbar b { flex: 1; text-align: center; font: 600 13px var(--text); color: var(--muted); margin-right: 40px; }
+.finder .fbody { padding: 6px; }
+.frow2 { display: flex; align-items: center; gap: 9px; padding: 6px 10px; border-radius: var(--r1); font-size: 14px; }
+.frow2 .n { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.frow2 .z { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.frow2.sel { background: #0a64d6; color: #fff; }
+.frow2.sel .z { color: rgba(255, 255, 255, .8); }
+.ql-pop { position: absolute; right: 0; top: 46px; width: 88%; z-index: 2; transform-origin: var(--ox, 20%) var(--oy, 20%); transition: transform .5s cubic-bezier(.2, .8, .2, 1), opacity .3s ease-out; }
+.js .ql:not(.open) .ql-pop { transform: scale(.05); opacity: 0; pointer-events: none; transition: transform .4s cubic-bezier(.5, 0, .75, 0), opacity .3s ease-in .1s; }
+.ql-hint { position: absolute; left: 0; right: 0; bottom: -108px; margin: 0; text-align: center; font-size: 13px; color: var(--muted); }
+.ql-panel { background: var(--card); border-radius: var(--r2); box-shadow: var(--shadow); overflow: hidden; }
 .ql-head { display: flex; align-items: center; gap: 14px; padding: 20px 22px; border-bottom: 1px solid var(--line); }
 .ql-head img { width: 48px; }
 .ql-head b { font: 700 18px var(--round); display: block; }
 .ql-head small { color: var(--muted); font-size: 13px; }
-.ql-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 22px; font-size: 15px; border-bottom: 1px solid var(--line); transition: opacity .5s var(--ease), transform .5s var(--ease), background .2s ease-out; transition-delay: calc(560ms + var(--i, 0) * 70ms), calc(560ms + var(--i, 0) * 70ms), 0s; }
-.js .ql:not(.in) .ql-row { opacity: 0; transform: translateX(-12px); }
+.ql-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 22px; font-size: 15px; border-bottom: 1px solid var(--line); }
 .ql-row:hover { background: var(--tint); }
 .ql-row:last-child { border-bottom: 0; }
 .ql-row .nm { display: flex; align-items: center; gap: 10px; }
@@ -215,65 +238,256 @@ ul.ticks b { color: var(--ink); font-weight: 600; }
 .ql-foot { display: flex; justify-content: space-between; gap: 10px; padding: 14px 22px; background: var(--tint); }
 .ql-foot span { font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: var(--r1); background: var(--card); border: 1px solid var(--line); }
 .ql-foot span:last-child { background: var(--blue); color: #fff; border-color: var(--blue); }
-.key { position: absolute; left: -18px; bottom: -34px; font: 600 16px var(--text); color: var(--muted); background: var(--card); border: 1px solid var(--line); border-bottom-width: 5px; border-radius: var(--r1); padding: 14px 64px; box-shadow: 0 12px 24px -10px rgba(20, 50, 110, .25); transform: rotate(-4deg); cursor: pointer; user-select: none; transition: transform .12s ease-out, border-bottom-width .12s ease-out, box-shadow .12s ease-out; }
-.key:hover, .key.down { transform: rotate(-4deg) translateY(3px); border-bottom-width: 2px; box-shadow: 0 6px 12px -8px rgba(20, 50, 110, .3); }
+.key { position: absolute; left: 50%; margin-left: -96px; bottom: -74px; z-index: 3; font: 600 16px var(--text); color: var(--muted); background: var(--card); border: 1px solid var(--line); border-bottom-width: 5px; border-radius: var(--r1); padding: 14px 64px; box-shadow: 0 8px 16px -8px rgba(0, 0, 0, .25); transform: rotate(-3deg); cursor: pointer; user-select: none; transition: transform .12s ease-out, border-bottom-width .12s ease-out, box-shadow .12s ease-out; }
+.key:hover, .key.down { transform: rotate(-3deg) translateY(3px); border-bottom-width: 2px; box-shadow: 0 4px 8px -6px rgba(0, 0, 0, .3); }
 
 /* 3. no junk: two trees */
-.trees { display: grid; gap: 20px; margin-top: 56px; grid-template-columns: 1fr; text-align: left; }
-@media (min-width: 760px) { .trees { grid-template-columns: 1fr 1fr; } }
-.tree { background: var(--card); border: 1px solid var(--line); border-radius: var(--r2); padding: 22px 24px 18px; }
-.tree h3 { font-size: 15px; font-family: var(--text); font-weight: 600; color: var(--muted); letter-spacing: 0; margin-bottom: 12px; }
-.tree.good { border-color: color-mix(in srgb, var(--blue) 45%, var(--line)); box-shadow: var(--lift); }
-.tree.good h3 { color: var(--blue); }
+.trees { display: grid; gap: 16px; grid-template-columns: 1fr; text-align: left; }
+@media (min-width: 640px) { .trees { grid-template-columns: 1fr 1fr; align-items: stretch; } }
+.tree { background: var(--card); border-radius: var(--r2); box-shadow: var(--shadow); overflow: hidden; }
+.tree .fbar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: color-mix(in srgb, var(--tint) 70%, var(--card)); border-bottom: 1px solid var(--line); }
+.tree .fbar i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
+.tree .fbar i:nth-child(2) { background: #febc2e; } .tree .fbar i:nth-child(3) { background: #28c840; }
+.tree .fbar b { flex: 1; text-align: center; font: 600 13px var(--text); color: var(--muted); margin-right: 40px; }
+.tree .fbody { padding: 10px 16px 14px; }
 .tline { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 15px; position: relative; }
 .tline.d1 { padding-left: 24px; } .tline.d2 { padding-left: 48px; }
-.tline em { font-style: normal; font: 700 12px var(--round); color: var(--red); background: var(--red-soft); padding: 2px 8px; border-radius: 999px; margin-left: auto; transition: opacity .4s ease-out, transform .5s var(--spring); transition-delay: calc(700ms + var(--i, 0) * 160ms); }
-.tline.junk span { transition: color .4s ease-out; transition-delay: calc(700ms + var(--i, 0) * 160ms); }
-.js .trees:not(.in) .tline em { opacity: 0; transform: scale(.6); }
-.trees.in .tline.junk span { color: var(--red); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--red) 60%, transparent); }
+.tline em { font-style: normal; font: 700 12px var(--round); color: var(--red); background: var(--red-soft); padding: 2px 8px; border-radius: 999px; margin-left: auto; }
 
-/* 4. speed */
-.race { position: relative; margin-top: 110px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r3); padding: clamp(24px, 4vw, 44px); box-shadow: var(--lift); }
+/* 4. speed: a race on one shared clock */
+.race { position: relative; margin-top: 70px; background: var(--card); border-radius: var(--r3); padding: clamp(24px, 4vw, 40px); box-shadow: var(--shadow); }
 .race .sitter { position: absolute; right: 36px; top: 0; width: 132px; transform: translateY(-78%) rotate(6deg); }
 .race .sitter .pouch-float { filter: drop-shadow(0 10px 12px rgba(30, 80, 170, .18)); }
-.rrow { display: grid; grid-template-columns: 1fr; gap: 6px 36px; padding: 22px 0; border-bottom: 1px solid var(--line); }
-.rrow:first-child { padding-top: 0; }
+.rrow { padding: 18px 0 20px; border-bottom: 1px solid var(--line); }
+.rrow:first-of-type { padding-top: 0; }
 .rrow:last-of-type { border-bottom: 0; }
-@media (min-width: 760px) { .rrow { grid-template-columns: 210px 1fr; align-items: center; } }
-.stat b { display: block; font: 800 clamp(48px, 6vw, 68px)/1 var(--round); letter-spacing: -0.03em; color: var(--blue); font-variant-numeric: tabular-nums; }
-.stat span { display: block; font-size: 15px; color: var(--muted); margin-top: 6px; }
-.bar { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 14px; margin-top: 8px; font-size: 14px; color: var(--muted); }
-.bar .track { position: relative; height: 30px; border-radius: var(--r1); background: color-mix(in srgb, var(--line) 60%, transparent); }
-.bar .fill { width: var(--w); height: 100%; border-radius: var(--r1); background: #b8c2d4; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; color: #fff; font: 700 13px var(--text); font-variant-numeric: tabular-nums; min-width: 64px; }
-.bar.us .fill { background: var(--blue); }
-.bar.us { color: var(--ink); font-weight: 600; }
-.note { font-size: 13px; color: var(--muted); margin-top: 22px; }
+.rhead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+.gain { font: 700 15px var(--round); color: var(--blue); font-variant-numeric: tabular-nums; transition: opacity .4s ease-out; }
+.js .rrow:not(.done) .gain { opacity: 0; }
+.lane { display: grid; grid-template-columns: 82px 1fr; align-items: center; gap: 12px; height: 30px; font-size: 14px; color: var(--muted); }
+.lane.us { color: var(--ink); font-weight: 600; }
+.run { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.run i { display: block; height: 18px; width: var(--w); border-radius: var(--r1); background: #a1a1a8; flex: none; }
+.lane.us .run i { background: var(--blue); }
+.run .t { font: 600 13px var(--text); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.run .ok { width: 18px; height: 18px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font: 700 11px/1 var(--text); transition: opacity .2s ease-out, transform .35s var(--spring); }
+.js .lane:not(.fin) .ok { opacity: 0; transform: scale(.4); }
+.note { font-size: 13px; color: var(--muted); margin-top: 18px; }
 .replay { font: 600 13px var(--text); color: var(--blue); background: none; border: 0; padding: 0; margin-left: 8px; cursor: pointer; }
 .replay:hover { text-decoration: underline; text-underline-offset: 3px; }
 
+/* 5. the compress sheet, rebuilt from the app's own sizes so it can be clicked */
+.cstage { position: relative; width: 100%; max-width: 500px; margin-inline: auto; }
+.split > * { min-width: 0; }
+.cs-chips, .cs-grid, .csheet { min-width: 0; }
+.csheet { --sa: #2f7bff; --sink: #1d1d1f; --ssec: rgba(0, 0, 0, .5); --sfill: rgba(0, 0, 0, .05); --sfill2: rgba(0, 0, 0, .09); --sbg: #fff; --sline: rgba(0, 0, 0, .1);
+  --rnd: ui-rounded, "SF Pro Rounded", -apple-system, "PingFang SC", sans-serif; --sys: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif;
+  background: var(--sbg); color: var(--sink); border-radius: var(--r2); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .14), 0 22px 48px -14px rgba(0, 0, 0, .28), 0 2px 6px rgba(0, 0, 0, .06);
+  padding: 24px; display: flex; flex-direction: column; gap: 18px; text-align: left; font: 13px/1.3 var(--sys); -webkit-font-smoothing: antialiased;
+  transition: opacity .28s ease-out, transform .38s cubic-bezier(.2, .8, .2, 1); }
+.cstage.closed .csheet { opacity: 0; transform: translateY(14px) scale(.97); pointer-events: none; }
+:where(.csheet button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: default; }
+.cs-head { display: flex; align-items: center; gap: 14px; }
+.cs-icon { flex: none; width: 48px; height: 48px; border-radius: 13px; background: var(--sa); color: #fff; display: grid; place-items: center; }
+.cs-icon svg { width: 25px; height: 25px; }
+.cs-title { flex: 1; min-width: 0; display: grid; gap: 4px; }
+.cs-title b { font: 700 17px/1.2 var(--rnd); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cs-name { display: flex; align-items: center; gap: 4px; }
+.cs-input { flex: 1; min-width: 0; font: 500 13px var(--rnd); color: var(--sink); padding: 4px 8px; border: 0; border-radius: 7px; background: var(--sfill); outline: none; }
+.cs-input:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--sa) 35%, transparent); }
+.cs-ext { font: 600 13px var(--rnd); color: var(--sa); display: inline-block; transition: transform .25s ease-out, opacity .25s ease-out; }
+.cs-ext.flip { transform: translateY(-6px); opacity: 0; }
+.cs-scroll { max-height: 430px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 18px; padding: 8px 10px; margin: -8px -10px; scrollbar-width: none;
+  --ft: 0px; --fb: 0px; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--ft), #000 calc(100% - var(--fb)), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 var(--ft), #000 calc(100% - var(--fb)), transparent 100%); }
+.cs-scroll::-webkit-scrollbar { display: none; }
+.cs-scroll.more-up { --ft: 22px; }
+.cs-scroll.more-down { --fb: 28px; }
+.cs-sec { display: flex; flex-direction: column; gap: 8px; transition: opacity .25s ease-out; }
+.cs-sec h4 { margin: 0; font: 700 12px var(--rnd); color: var(--ssec); }
+.cs-sec.off { display: none; }
+.cs-chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 6px; margin: -4px -6px; scrollbar-width: none;
+  --fl: 0px; --fr: 0px; -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--fl), #000 calc(100% - var(--fr)), transparent 100%); mask-image: linear-gradient(to right, transparent 0, #000 var(--fl), #000 calc(100% - var(--fr)), transparent 100%); }
+.cs-chips.more-left { --fl: 24px; }
+.cs-chips.more-right { --fr: 32px; }
+.cs-chips::-webkit-scrollbar { display: none; }
+.pchip { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; border-radius: 999px; background: var(--sfill); font: 600 12px var(--rnd) !important; white-space: nowrap; transition: background .2s ease-out, color .2s ease-out, transform .35s cubic-bezier(.34, 1.56, .64, 1); }
+.pchip i { display: grid; width: 11px; height: 11px; }
+.pchip svg { width: 11px; height: 11px; }
+.pchip:hover { background: var(--sfill2); }
+.pchip.on { background: var(--sa); color: #fff !important; transform: scale(1.03); }
+.pchip.save { background: none; color: var(--sa) !important; padding: 6px 10px; border: 1px dashed color-mix(in srgb, var(--sa) 40%, transparent); }
+.cs-pop { display: grid; gap: 10px; padding: 16px; border-radius: var(--r2); background: var(--sbg); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .14), 0 10px 26px -8px rgba(0, 0, 0, .3); }
+.cs-pop[hidden] { display: none; }
+.cs-pop b { font: 700 13px var(--rnd); }
+.cs-pop-row { display: flex; justify-content: flex-end; }
+.cs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.fchip { display: grid; gap: 3px; justify-items: center; padding: 10px 4px !important; border-radius: 12px; background: rgba(0, 0, 0, .04) !important; transition: background .2s ease-out, color .2s ease-out, transform .35s cubic-bezier(.34, 1.56, .64, 1); }
+.fchip:hover { background: rgba(0, 0, 0, .08) !important; transform: scale(1.01); }
+.fchip b { font: 800 13px var(--rnd); }
+.fchip small { font: 500 10px var(--rnd); opacity: .75; }
+.fchip.on { background: var(--sa) !important; color: #fff !important; transform: scale(1.03); }
+.cs-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 20px; margin: 0; background: transparent; }
+.cs-slider::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--sa) 0 var(--fill, 55%), rgba(0, 0, 0, .1) var(--fill, 55%)); }
+.cs-slider::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(0, 0, 0, .1); }
+.cs-slider::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--sa); }
+.cs-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -8px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 .5px rgba(0, 0, 0, .2), 0 1px 3px rgba(0, 0, 0, .25); }
+.cs-slider::-moz-range-thumb { width: 20px; height: 20px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 .5px rgba(0, 0, 0, .2), 0 1px 3px rgba(0, 0, 0, .25); }
+.cs-ticks { display: flex; justify-content: space-between; padding: 0 9px; margin-top: -6px; }
+.cs-ticks i { width: 2px; height: 2px; border-radius: 1px; background: rgba(0, 0, 0, .3); }
+.cs-scale { display: grid; grid-template-columns: 1fr 1fr 1fr; font: 500 11px var(--rnd); color: var(--ssec); margin-top: -2px; }
+.cs-scale span:nth-child(odd) { text-align: left; }
+.cs-scale span:nth-child(3), .cs-scale span:nth-child(4) { text-align: center; }
+.cs-scale span:nth-child(5), .cs-scale span:nth-child(6) { text-align: right; }
+.cs-hint { font: 400 11px var(--rnd); color: var(--sa); }
+.cs-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.cs-switch { position: relative; flex: none; width: 38px; height: 22px; border-radius: 999px; background: rgba(0, 0, 0, .09) !important; box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .08); transition: background .2s ease-out; cursor: pointer !important; }
+.cs-switch i { position: absolute; left: 2px; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 .5px rgba(0, 0, 0, .15), 0 1px 2px rgba(0, 0, 0, .25); transition: transform .25s cubic-bezier(.34, 1.4, .64, 1); }
+.cs-switch[aria-checked="true"] { background: var(--sa) !important; }
+.cs-switch[aria-checked="true"] i { transform: translateX(16px); }
+.cs-pwbody { display: grid; gap: 8px; overflow: hidden; max-height: 0; opacity: 0; transition: max-height .35s ease-out, opacity .25s ease-out; }
+.cs-pw.open .cs-pwbody { max-height: 160px; opacity: 1; }
+.cs-pwrow { display: flex; align-items: center; gap: 8px; }
+.cs-field { flex: 1; min-width: 0; height: 22px; padding: 0 7px; font: 13px var(--sys); color: var(--sink); background: var(--sbg); border: 0; border-radius: var(--r1); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .25), inset 0 1px 1px rgba(0, 0, 0, .05); outline: none; }
+.cs-field:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--sa) 35%, transparent), 0 0 0 .5px var(--sa); }
+.cs-eye { width: 20px; height: 20px; color: var(--ssec) !important; cursor: pointer !important; }
+.cs-eye svg { width: 18px; height: 18px; }
+.cs-eye.on { color: var(--sa) !important; }
+.cs-check { display: flex; align-items: center; gap: 7px; font: 13px var(--sys); cursor: default; }
+.cs-check.sm { font: 12px var(--rnd); }
+.cs-check input { position: absolute; opacity: 0; pointer-events: none; }
+.cs-check i { flex: none; width: 14px; height: 14px; border-radius: 3.5px; background: var(--sbg); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .3), inset 0 1px 1px rgba(0, 0, 0, .05); display: grid; place-items: center; transition: background .12s ease-out; }
+.cs-check input:checked + i { background: var(--sa); box-shadow: none; }
+.cs-check input:checked + i::after { content: ""; width: 7px; height: 4px; margin-top: -2px; border: solid #fff; border-width: 0 0 1.8px 1.8px; transform: rotate(-45deg); }
+.cs-check input:focus-visible + i { outline: 3px solid color-mix(in srgb, var(--sa) 45%, transparent); }
+.cs-note { margin: 0; font: 400 11px var(--rnd); color: var(--ssec); }
+.cs-splitrow { display: flex; align-items: center; gap: 8px; }
+.cs-popup { -webkit-appearance: none; appearance: none; width: 210px; max-width: 100%; height: 22px; padding: 0 26px 0 9px; font: 13px var(--sys); color: var(--sink); border: 0; border-radius: var(--r1); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .2), 0 1px 1.5px rgba(0, 0, 0, .1);
+  background: var(--sbg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 14'%3E%3Cpath d='M2 5l3-3 3 3M2 9l3 3 3-3' fill='none' stroke='%23333' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 8px center/8px 12px no-repeat; }
+.cs-custom { display: none; align-items: center; gap: 6px; color: var(--ssec); }
+.cs-custom .cs-field { width: 70px; flex: none; }
+.cs-custom.on { display: inline-flex; }
+.cs-foot { display: flex; justify-content: space-between; align-items: center; }
+.cs-btn { display: inline-flex !important; align-items: center; gap: 7px; height: 28px; padding: 0 14px !important; border-radius: var(--r1); font: 500 13px var(--sys) !important; background: var(--sbg) !important; box-shadow: 0 0 0 .5px rgba(0, 0, 0, .18), 0 1px 2px rgba(0, 0, 0, .1); cursor: pointer !important; transition: filter .12s ease-out, opacity .2s ease-out; }
+.cs-btn:active { filter: brightness(.92); }
+.cs-btn.prim { background: var(--sa) !important; color: #fff !important; font: 600 13px var(--rnd) !important; padding: 0 18px !important; box-shadow: 0 1px 2px rgba(0, 0, 0, .15); }
+.cs-btn.prim svg { width: 15px; height: 15px; }
+.cs-btn:disabled { opacity: .4; cursor: default !important; }
+.cs-done { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 16px; pointer-events: none; opacity: 0; transition: opacity .3s ease-out; }
+.cstage.closed .cs-done { opacity: 1; pointer-events: auto; }
+.cs-ring svg { width: 46px; height: 46px; transform: rotate(-90deg); }
+.cs-ring circle { fill: none; stroke: var(--line); stroke-width: 3.5; }
+.cs-ring circle.run { stroke: #2f7bff; stroke-linecap: round; stroke-dasharray: 100.5; stroke-dashoffset: 100.5; }
+.cs-ring.go circle.run { stroke-dashoffset: 0; transition: stroke-dashoffset .9s cubic-bezier(.4, 0, .3, 1); }
+.cs-ring.gone { display: none; }
+.cs-file { display: none; justify-items: center; gap: 6px; font-size: 13px; animation: popIn .45s cubic-bezier(.34, 1.56, .64, 1); }
+.cs-file.on { display: grid; }
+.cs-file svg { width: 64px; height: 80px; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .15)); }
+.cs-file span { background: #0a64d6; color: #fff; border-radius: var(--r1); padding: 1px 7px; }
+.cs-file small { color: var(--muted); font-size: 12px; }
+@keyframes popIn { from { transform: scale(.5); opacity: 0; } }
+.cs-again { font: 600 13px var(--text); color: var(--blue); background: none; border: 0; cursor: pointer; padding: 6px 10px; border-radius: 999px; }
+.cs-again:hover { background: var(--blue-soft); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .csheet { --sink: #f5f5f7; --ssec: rgba(255, 255, 255, .55); --sfill: rgba(255, 255, 255, .08); --sfill2: rgba(255, 255, 255, .13); --sbg: #2b2b2f; } }
 /* 6. integrations: a plain row, no boxes */
-.ways { display: grid; grid-template-columns: 1fr; margin-top: 48px; border-top: 1px solid var(--line); }
-@media (min-width: 860px) { .ways { grid-template-columns: repeat(4, 1fr); } }
-.way { padding: 28px 24px 8px 0; border-bottom: 1px solid var(--line); }
-@media (min-width: 860px) { .way { border-bottom: 0; padding-right: 28px; } .way + .way { border-left: 1px solid var(--line); padding-left: 28px; } }
-.way svg { width: 30px; height: 30px; stroke: var(--blue); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 14px; transition: transform .5s var(--spring); }
-.way:hover svg { transform: rotate(-8deg) scale(1.12); }
-.way b { display: block; font: 700 18px var(--round); }
-.way p { color: var(--muted); font-size: 15px; margin: 6px 0 0; }
-.way kbd { font: 600 12px var(--text); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; color: var(--ink); background: var(--card); }
+.ways-title { font-size: clamp(26px, 3vw, 34px); }
+.rail { display: flex; gap: 28px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; padding: 36px max(16px, calc((100% - 1120px) / 2)) 24px; scroll-padding-inline: max(16px, calc((100% - 1120px) / 2)); scrollbar-width: none; overscroll-behavior-x: contain; }
+.rail::-webkit-scrollbar { display: none; }
+.wcard { flex: none; width: min(720px, 86vw); scroll-snap-align: start; background: var(--card); border-radius: var(--r3); box-shadow: var(--lift); overflow: hidden; display: flex; flex-direction: column; }
+.wtop { display: flex; justify-content: space-between; gap: 24px; padding: clamp(26px, 4vw, 50px) clamp(24px, 4vw, 50px) 30px; }
+.wtop h3 { font: 700 clamp(22px, 2.4vw, 27px)/1.25 var(--text); letter-spacing: -0.01em; }
+.wtop p { color: var(--muted); font-size: 15px; line-height: 1.65; margin: 10px 0 0; max-width: 470px; }
+.wtag { flex: none; font: 400 clamp(17px, 1.8vw, 22px) var(--text); color: #b8b8be; }
+.wvis { flex: 1; min-height: 330px; background: var(--tint); display: flex; align-items: center; justify-content: center; gap: 28px; padding: 32px; flex-wrap: wrap; }
+/* the card you're on wears the theme color on top */
+.wtop, .wtop h3, .wtop p, .wtag { transition: background-color .4s ease-out, color .4s ease-out; }
+.wcard.active .wtop { background: var(--blue); }
+.wcard.active .wtop h3 { color: #fff; }
+.wcard.active .wtop p { color: rgba(255, 255, 255, .86); }
+.wcard.active .wtag { color: rgba(255, 255, 255, .62); }
+/* each card's picture is a small stage that plays out a real use */
+.stage { position: relative; width: 460px; height: 270px; flex: none; text-align: left; }
+.fi-item { position: absolute; display: grid; justify-items: center; gap: 6px; font-size: 12px; width: 110px; text-align: center; transition: opacity .3s ease-out, transform .45s cubic-bezier(.34, 1.56, .64, 1); }
+.fi-item span { border-radius: var(--r1); padding: 1px 6px; transition: background .15s ease-out, color .15s ease-out; }
+.fi-item.sel span { background: #0a64d6; color: #fff; }
+.zipico { width: 56px; height: 70px; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .15)); }
+.dirico { width: 70px; height: 56px; margin-top: 7px; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .12)); }
+.cur { position: absolute; left: 0; top: 0; width: 18px; height: 25px; z-index: 5; transition: transform .7s cubic-bezier(.45, 0, .2, 1); filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .25)); }
+.st-finder .zipf { left: 20px; top: 30px; }
+.st-finder .outf { left: 20px; top: 150px; }
+.st-finder .outf:not(.on) { opacity: 0; transform: scale(.4); }
+.st-finder .cmenu { position: absolute; left: 150px; top: 40px; transform-origin: 0 0; transition: opacity .12s ease-out, transform .18s ease-out; }
+.st-finder .cmenu:not(.on) { opacity: 0; transform: scale(.92); pointer-events: none; }
+.cmenu { background: color-mix(in srgb, var(--card) 94%, transparent); border-radius: var(--r2); box-shadow: var(--shadow); padding: 5px; font: 13px var(--text); min-width: 210px; text-align: left; }
+.cmenu.big { font-size: 14px; min-width: 250px; }
+.cmenu div { padding: 4px 11px; border-radius: var(--r1); white-space: nowrap; color: var(--ink); }
+.cmenu div.dim { color: var(--muted); }
+.cmenu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 8px; }
+.cmenu .sub { display: flex; justify-content: space-between; gap: 20px; }
+.cmenu div.go.hl { background: var(--blue); color: #fff; }
+.cmenu div.go.flash { background: color-mix(in srgb, var(--blue) 70%, #fff); }
+.st-ql .zipf { left: 10px; top: 20px; }
+.st-ql .bigkey { position: absolute; left: 8px; top: 170px; padding: 12px 34px; transition: transform .1s ease-out, border-bottom-width .1s ease-out; }
+.st-ql .bigkey.down { transform: translateY(3px); border-bottom-width: 1px; }
+.st-ql .qlmini { position: absolute; left: 150px; top: 18px; width: 300px; transform-origin: -80px 40px; transition: transform .45s cubic-bezier(.2, .8, .2, 1), opacity .3s ease-out; }
+.st-ql .qlmini:not(.on) { opacity: 0; transform: scale(.06); }
+.st-sc .flow { position: absolute; left: 0; right: 0; top: 74px; }
+.action { position: relative; overflow: hidden; transition: box-shadow .2s ease-out; }
+.action .bar { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--blue); transform: scaleX(0); transform-origin: 0 50%; }
+.action.run .bar { transform: scaleX(1); transition: transform .55s linear; }
+.action.ok { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--blue) 55%, transparent), var(--lift); }
+.banner { position: absolute; right: 0; top: 0; z-index: 3; display: flex; gap: 10px; align-items: center; width: 250px; padding: 10px 12px; border-radius: var(--r2); background: color-mix(in srgb, var(--card) 92%, transparent); box-shadow: var(--shadow); font-size: 13px; transition: transform .45s cubic-bezier(.2, .8, .2, 1), opacity .3s ease-out; }
+.banner img { width: 30px; }
+.banner b { display: block; font-size: 13px; }
+.banner span { color: var(--muted); font-size: 12px; }
+.banner:not(.on) { opacity: 0; transform: translateX(40px); }
+.st-as .code { position: absolute; left: 0; top: 0; width: 460px; }
+.code .ln { display: block; }
+.st-as .code .ln { clip-path: inset(0 100% 0 0); }
+.st-as .code .ln.on { clip-path: inset(0 0 0 0); transition: clip-path .5s steps(26, end); }
+.st-as .results { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: auto 1fr auto 1fr auto 1fr; align-items: center; gap: 4px 8px; font-size: 12px; }
+.st-as .results .dirico { width: 34px; height: 27px; margin: 0; }
+.st-as .results > * { transition: opacity .3s ease-out, transform .4s cubic-bezier(.34, 1.56, .64, 1); }
+.st-as .results:not(.on) > * { opacity: 0; transform: translateY(8px); }
+.qlmini { width: min(330px, 100%); background: var(--card); border-radius: var(--r2); box-shadow: var(--shadow); overflow: hidden; text-align: left; }
+.qlm-head { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.qlm-head img { width: 34px; }
+.qlm-head b { display: block; font-size: 14px; }
+.qlm-head small { color: var(--muted); font-size: 12px; }
+.qlm-row { display: flex; align-items: center; gap: 9px; padding: 8px 14px; font-size: 13px; border-bottom: 1px solid var(--line); }
+.qlm-row:last-child { border-bottom: 0; }
+.qlm-row em { margin-left: auto; font-style: normal; color: var(--muted); font-size: 12px; }
+.bigkey { font: 600 15px var(--text); color: var(--muted); background: var(--card); border: 1px solid var(--line); border-bottom-width: 4px; border-radius: var(--r1); padding: 14px 54px; box-shadow: var(--lift); }
+.flow { display: grid; justify-items: center; }
+.flow .link { width: 2px; height: 18px; background: var(--line); }
+.action { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--card); border-radius: var(--r2); box-shadow: var(--lift); padding: 11px 14px; font: 600 14px var(--text); max-width: 100%; }
+.action img { width: 22px; height: 22px; }
+.action .aic { width: 22px; height: 22px; border-radius: var(--r1); display: grid; place-items: center; font-size: 12px; color: #fff; }
+.action .aic.gray { background: #8e8e93; } .action .aic.red { background: #ff3b30; font-size: 9px; }
+.action .tok { font-weight: 500; color: var(--blue); background: var(--blue-soft); border-radius: var(--r1); padding: 2px 7px; }
+.code { font: 13px/1.6 ui-monospace, "SF Mono", Menlo, monospace; background: var(--card); border-radius: var(--r2); box-shadow: var(--lift); padding: 12px 16px; white-space: pre; color: var(--ink); overflow: hidden; max-width: 100%; text-align: left; }
+.code.big { font-size: 12.5px; padding: 18px 20px; overflow-x: auto; }
+.code .k { color: #ad3da4; } .code .s { color: #c41a16; }
+.rail-nav { display: flex; justify-content: center; gap: 14px; margin-top: 18px; }
+.rail-nav button { width: 44px; height: 44px; border-radius: 50%; border: 0; background: color-mix(in srgb, var(--ink) 8%, var(--tint)); display: grid; place-items: center; cursor: pointer; transition: background .2s ease-out, opacity .2s ease-out; }
+.rail-nav button:hover { background: color-mix(in srgb, var(--ink) 14%, var(--tint)); }
+.rail-nav button:disabled { opacity: .4; cursor: default; }
+.rail-nav svg { width: 20px; height: 20px; fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* 7. privacy */
 .privacy { position: relative; background: var(--blue); color: #fff; border-radius: var(--r3); padding: clamp(36px, 6vw, 72px); display: grid; gap: 36px; }
-.js .privacy.rise { transform: translateY(26px) scale(.97); }
-.js .privacy.rise.in { transform: none; }
 @media (min-width: 860px) { .privacy { grid-template-columns: 1.1fr 1fr; align-items: center; } }
 .privacy h2 { color: #fff; }
 .privacy p { color: rgba(255, 255, 255, .85); margin: 16px 0 0; }
-.privacy ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
-.privacy li { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, .12); border-radius: var(--r2); padding: 16px 20px; font-weight: 600; transition: opacity .6s var(--ease), transform .6s var(--ease), background .2s ease-out; transition-delay: calc(350ms + var(--i, 0) * 110ms), calc(350ms + var(--i, 0) * 110ms), 0s; }
-.privacy li:hover { background: rgba(255, 255, 255, .2); }
-.privacy li svg { flex: none; width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-.js .privacy:not(.in) li { opacity: 0; transform: translateX(24px); }
+.privacy ul.plain { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 6px; }
+.privacy ul.plain li { position: relative; padding-left: 18px; color: #fff; }
+.privacy ul.plain li::before { content: ""; position: absolute; left: 2px; top: .7em; width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .7); }
+.aslabel { background: #fff; color: #1d1d1f; border-radius: var(--r2); padding: 22px 24px 24px; box-shadow: 0 14px 30px -12px rgba(0, 0, 0, .35); max-width: 380px; justify-self: end; width: 100%; }
+.aslabel .as-head { display: flex; justify-content: space-between; align-items: baseline; font: 700 20px var(--text); letter-spacing: -0.01em; }
+.aslabel .as-head a { font: 400 14px var(--text); color: #0a66d8; }
+.aslabel .as-box { margin-top: 14px; border-top: 1px solid #e5e5ea; padding: 22px 8px 4px; text-align: center; }
+.aslabel .as-box svg { width: 34px; height: 34px; color: #0a66d8; }
+.aslabel .as-box b { display: block; font: 600 17px var(--text); margin-top: 10px; }
+.aslabel .as-box p { color: #6e6e73; font-size: 13px; line-height: 1.45; margin: 6px 0 0; }
 .privacy .napper { position: absolute; right: clamp(24px, 5vw, 64px); top: 0; width: 150px; transform: translateY(-74%); }
 .privacy .napper .pouch-float { animation: breathe 4.2s ease-in-out infinite; filter: drop-shadow(0 12px 14px rgba(10, 40, 100, .25)); }
 @keyframes breathe { 50% { transform: scale(1.025, .975); } }
@@ -285,7 +499,11 @@ ul.ticks b { color: var(--ink); font-weight: 600; }
 .napper.awake .zz { display: none; }
 
 /* final cta + footer */
-.final { text-align: center; padding: 110px 0 100px; }
+.final { position: relative; overflow: hidden; text-align: center; padding: 110px 0 100px; }
+.final.has-pit { padding-bottom: 320px; }
+/* the text sits above the falling archives; only its controls catch the pointer */
+.final .wrap { position: relative; z-index: 2; pointer-events: none; }
+.final .wrap .pouch, .final .wrap a, .final .wrap button { pointer-events: auto; }
 .final .pouch-stage { width: 190px; margin-bottom: 18px; }
 footer { border-top: 1px solid var(--line); padding: 36px 0 48px; font-size: 14px; color: var(--muted); }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; }
@@ -295,23 +513,26 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .js .rise, .js .rise * { opacity: 1 !important; transform: none !important; }
   html { scroll-behavior: auto; }
 }
 @media (max-width: 640px) {
   nav.top .links { display: none; }
   .lang-btn { margin-left: auto; }
+  .wvis { min-height: 250px; padding: 22px 16px; gap: 16px; }
+  .stage { transform: scale(.68); margin: -44px -74px; }
+  .tile { width: 42px; height: 53px; }
+  .final.has-pit { padding-bottom: 190px; }
   section.block { padding: 84px 0; }
-  .names { padding-top: 110px; }
   .hero { padding-top: 36px; }
   .tilt-stage { margin-top: 48px; }
-  .ba-wrap { margin-top: 120px; }
-  .ba-wrap .peek { width: 160px; }
-  .frow { padding: 8px 14px; font-size: 14px; }
-  .frow .sz { display: none; }
-  .frow.l1 .nm { padding-left: 14px; } .frow.l2 .nm { padding-left: 28px; }
-  .key { left: 8px; bottom: -28px; padding: 12px 44px; }
-  .bar { grid-template-columns: 76px 1fr; }
+  .ba-wrap { margin-top: 100px; }
+  .ba-wrap .peek { width: 140px; }
+
+  .key { margin-left: -70px; bottom: -64px; padding: 12px 44px; }
+  .ql { aspect-ratio: auto; height: 400px; }
+  .ql-pop { top: 64px; width: 94%; }
+  .ql-head { padding: 12px 16px; } .ql-row { padding: 7px 16px; font-size: 14px; }
+  .lane { grid-template-columns: 70px 1fr; }
   .race .sitter { width: 100px; right: 16px; }
   .privacy .napper { width: 110px; }
   footer .links { margin-left: 0; }
@@ -323,6 +544,7 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-folder" viewBox="0 0 20 16"><path d="M1 3.2C1 2 1.9 1 3.1 1h4.1c.5 0 1 .2 1.4.6L10 3h7c1.1 0 2 .9 2 2v1H1z" fill="#4a9cf0"/><rect x="1" y="4.6" width="18" height="10.4" rx="2" fill="#78b9f7"/><rect x="1" y="4.6" width="18" height="1.2" fill="#9acbfa"/></symbol>
   <symbol id="i-doc" viewBox="0 0 16 20"><path d="M2.5 .75h7.2l5.05 5.05V17.7c0 .85-.7 1.55-1.55 1.55H2.5c-.85 0-1.55-.7-1.55-1.55V2.3c0-.85.7-1.55 1.55-1.55z" fill="#fff" stroke="#c6cedb" stroke-width="1"/><path d="M9.7.75v3.5c0 .85.7 1.55 1.55 1.55h3.5" fill="#eef2f8" stroke="#c6cedb" stroke-width="1"/><rect x="3" y="13" width="10" height="3.6" rx="1" fill="currentColor"/></symbol>
+  <symbol id="i-zip" viewBox="0 0 16 20"><path d="M2.5 .75h7.2l5.05 5.05V17.7c0 .85-.7 1.55-1.55 1.55H2.5c-.85 0-1.55-.7-1.55-1.55V2.3c0-.85.7-1.55 1.55-1.55z" fill="#fff" stroke="#c6cedb" stroke-width="1"/><path d="M9.7.75v3.5c0 .85.7 1.55 1.55 1.55h3.5" fill="#eef2f8" stroke="#c6cedb" stroke-width="1"/><path d="M6.5 1v9" stroke="#8a93a3" stroke-width="2.2" stroke-dasharray="1.2 1.2"/><rect x="5" y="10" width="3" height="4" rx=".8" fill="#8a93a3"/></symbol>
 </svg>
 
 <nav class="top" id="nav">
@@ -348,211 +570,327 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
       <div class="pouch-shadow"></div>
     </div>
     <h1><span lang="en"><span class="ln"><span style="--d:150ms">Nearly 2× faster.</span></span><span class="ln"><span class="hl" style="--d:260ms">No garbled names.</span></span></span><span lang="zh-Hans"><span class="ln"><span style="--d:150ms">压缩快近一倍，</span></span><span class="ln"><span class="hl" style="--d:260ms">解压不乱码。</span></span></span></h1>
-    <p class="lead intro" style="--d:420ms">
+    <p class="lead">
       <span lang="en">Pouchlet opens RAR, 7Z, ZIP and more on your Mac — or lets you look inside first and take only what you need.</span>
       <span lang="zh-Hans">Pouchlet 帮你打开 RAR、7Z、ZIP 等各种压缩包，也可以先看看里面有什么，只拿你需要的。</span>
     </p>
-    <div class="cta intro" style="--d:520ms">
+    <div class="cta">
       <span class="btn primary" aria-disabled="true">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8 0 0-2.6-1-2.6-3.9zM14 5.5c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg>
         <span lang="en">Coming soon to the Mac App Store</span><span lang="zh-Hans">即将登陆 Mac App Store</span>
       </span>
-      <a class="btn ghost" href="#names"><span lang="en">See it fix a name</span><span lang="zh-Hans">看它怎么修好文件名</span><span class="arrow" aria-hidden="true">↓</span></a>
     </div>
-    <p class="meta intro" style="--d:600ms"><span lang="en">macOS 14 Sonoma or later · Apple silicon and Intel · 29 languages</span><span lang="zh-Hans">macOS 14 及更新版本 · Apple 芯片与 Intel · 29 种语言</span></p>
-    <div class="formats" aria-label="Formats">
-      <span>RAR</span><span>7Z</span><span>ZIP</span><span>TAR</span><span>GZ</span><span>BZ2</span><span>XZ</span><span>ISO</span><span>CAB</span><span>.001</span>
-    </div>
-  </div>
-  <div class="hero-band">
-    <div class="wrap">
-      <div class="tilt-stage intro" style="--d:700ms">
-        <div class="tilt" id="tilt">
-          <img class="hero-shot" lang="en" src="assets/en-browser.png" alt="Pouchlet showing the folders and files inside Summer Trip 2026.zip" width="1300" height="889">
-          <img class="hero-shot" lang="zh-Hans" src="assets/zh-Hans-browser.png" alt="Pouchlet 显示 2026 夏日旅行.zip 里的文件夹和文件" width="1300" height="889">
-        </div>
-      </div>
-    </div>
+    <p class="meta"><span lang="en">macOS 14 Sonoma or later · Apple silicon and Intel · 29 languages</span><span lang="zh-Hans">macOS 14 及更新版本 · Apple 芯片与 Intel · 29 种语言</span></p>
   </div>
 </header>
 
-<!-- 1. the strongest feature, as a live before/after -->
-<section class="block names" id="names">
-  <div class="wrap center">
-    <h2 class="big rise"><span lang="en">Zips from Windows,<br><span class="hl">names intact.</span></span><span lang="zh-Hans">Windows 同事发来的压缩包，<br><span class="hl">名字一个不乱。</span></span></h2>
-    <p class="lead rise"><span lang="en">Windows saves names in GBK, Big5, Shift-JIS or EUC-KR, and most Mac tools guess wrong. Pouchlet works out which one it is, every time.</span><span lang="zh-Hans">Windows 用 GBK、Big5、Shift-JIS 或 EUC-KR 保存文件名，Mac 上的多数工具会认错。Pouchlet 每次都能自动认出是哪一种。</span></p>
-    <div class="ba-wrap rise" id="ba-wrap">
-      <div class="peek" aria-hidden="true">
-        <div class="pouch-float"><div class="pouch" data-pouch data-look="names"><img src="assets/mascot.png" alt="" width="720" height="606"></div></div>
-      </div>
-      <div class="win" id="win">
-        <div class="win-bar"><i></i><i></i><i></i><b lang="zh-Hans">项目资料.zip</b><b lang="en">Tokyo Project.zip</b></div>
-        <div class="flist">
-          <div class="frow head"><span lang="en">Name</span><span lang="zh-Hans">名称</span><span lang="en">Size</span><span lang="zh-Hans">大小</span></div>
-          <div lang="zh-Hans">
-              <div class="frow"><span class="nm"><svg class="fi"><use href="#i-folder"/></svg><span class="nt" data-bad="ÏîÄ¿×ÊÁÏ">项目资料</span></span><span class="sz">—</span></div>
-              <div class="frow l1"><span class="nm"><svg class="fi doc f-doc"><use href="#i-doc"/></svg><span class="nt" data-bad="2026ÄêµÚÈý¼¾¶È±¨¸æ.docx">2026年第三季度报告.docx</span></span><span class="sz">1.2 MB</span></div>
-              <div class="frow l1"><span class="nm"><svg class="fi doc f-xls"><use href="#i-doc"/></svg><span class="nt" data-bad="±¨¼Ûµ¥£¨×îÖÕ°æ£©.xlsx">报价单（最终版）.xlsx</span></span><span class="sz">64 KB</span></div>
-              <div class="frow l1"><span class="nm"><svg class="fi"><use href="#i-folder"/></svg><span class="nt" data-bad="»áÒé¼ÍÒª">会议纪要</span></span><span class="sz">—</span></div>
-              <div class="frow l2"><span class="nm"><svg class="fi doc f-pdf"><use href="#i-doc"/></svg><span class="nt" data-bad="²úÆ·ÆÀÉó»á.pdf">产品评审会.pdf</span></span><span class="sz">2.4 MB</span></div>
-              <div class="frow l1"><span class="nm"><svg class="fi doc f-pdf"><use href="#i-doc"/></svg><span class="nt" data-bad="ºÏÍ¬É¨Ãè¼þ.pdf">合同扫描件.pdf</span></span><span class="sz">5.8 MB</span></div>
-              <div class="frow l1"><span class="nm"><svg class="fi doc f-txt"><use href="#i-doc"/></svg><span class="nt" data-bad="ÇëÏÈ¶ÁÎÒ.txt">请先读我.txt</span></span><span class="sz">1 KB</span></div>
-          </div>
-          <div lang="en">
-              <div class="frow"><span class="nm"><svg class="fi"><use href="#i-folder"/></svg><span class="nt" data-bad="“Œ‹žƒvƒ¿ƒWƒFƒNƒg">東京プロジェクト</span></span><span class="sz">—</span></div>
-              <div class="frow l1"><span class="nm"><svg class="fi doc f-ppt"><use href="#i-doc"/></svg><span class="nt" data-bad="Šé‰æ¿‘_¿Å¿I”Å.pptx">企画書_最終版.pptx</span></span><span class="sz">3.1 MB</span></div>
-              <div class="frow l1"><span class="nm"><svg class="fi doc f-xls"><use href="#i-doc"/></svg><span class="nt" data-bad="Œ©¿Ï¿‘.xlsx">見積書.xlsx</span></span><span class="sz">86 KB</span></div>
-              <div class="frow l1"><span class="nm"><svg class="fi"><use href="#i-folder"/></svg><span class="nt" data-bad="‹cŽ–˜^">議事録</span></span><span class="sz">—</span></div>
-              <div class="frow l2"><span class="nm"><svg class="fi doc f-pdf"><use href="#i-doc"/></svg><span class="nt" data-bad="ƒLƒbƒNƒIƒt‰ï‹c.pdf">キックオフ会議.pdf</span></span><span class="sz">270 KB</span></div>
-              <div class="frow l1"><span class="nm"><svg class="fi doc f-pdf"><use href="#i-doc"/></svg><span class="nt" data-bad="Œ_–ñ¿‘.pdf">契約書.pdf</span></span><span class="sz">980 KB</span></div>
-              <div class="frow l1"><span class="nm"><svg class="fi doc f-txt"><use href="#i-doc"/></svg><span class="nt" data-bad="“Ç‚ñ‚Å‚‚¾‚³‚¢.txt">読んでください.txt</span></span><span class="sz">2 KB</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="seg" id="seg" role="group" aria-label="Compare">
-        <span class="seg-pill" aria-hidden="true"></span>
-        <button type="button" data-mode="bad" aria-pressed="false"><span lang="en">Other apps</span><span lang="zh-Hans">别的工具</span></button>
-        <button type="button" data-mode="good" aria-pressed="true">Pouchlet</button>
-      </div>
-      <p class="ba-note"><span lang="en">The same zip, made on Windows. Switch between how other tools show it and how Pouchlet does.</span><span lang="zh-Hans">同一个在 Windows 上做的压缩包。切换看看别的工具和 Pouchlet 分别显示成什么样。</span></p>
+<!-- 1. browsing an archive: image left, text right -->
+<section class="block tint" id="browse">
+  <div class="wrap split rev enter">
+    <div class="text rise">
+      <h2><span lang="en">Look inside<br>before you unzip.</span><span lang="zh-Hans">先看看里面，<br>再决定解不解。</span></h2>
+      <p class="lead"><span lang="en">Open any archive like a folder: expand it, search it, preview with Space, and drag out only the files you need.</span><span lang="zh-Hans">像打开文件夹一样打开压缩包：展开、搜索、按空格预览，只把需要的文件拖出来。</span></p>
+      <ul class="ticks">
+        <li><span lang="en">Drag files in or press ⌘V to add them</span><span lang="zh-Hans">拖文件进来或按 ⌘V，直接加进压缩包</span></li>
+        <li><span lang="en">Double-click a file to open and edit it</span><span lang="zh-Hans">双击文件就能打开编辑</span></li>
+        <li><span lang="en">⌘C copies files out, Space previews them</span><span lang="zh-Hans">⌘C 拷贝出来，空格预览</span></li>
+        <li><span lang="en">Search names across every folder at once</span><span lang="zh-Hans">搜索文件名，所有文件夹一起找</span></li>
+      </ul>
+    </div>
+    <div class="rise">
+      <img class="shot app" lang="en" src="assets/en-browser.png" alt="Pouchlet showing the folders and files inside Summer Trip 2026.zip" width="1300" height="889" loading="lazy">
+      <img class="shot app" lang="zh-Hans" src="assets/zh-Hans-browser.png" alt="Pouchlet 显示 2026 夏日旅行.zip 里的文件夹和文件" width="1300" height="889" loading="lazy">
     </div>
   </div>
 </section>
 
-<!-- 2. quick look -->
+<!-- 2. names: text left, drag-to-compare real screenshots right -->
+<section class="block" id="names">
+  <div class="wrap split enter">
+    <div class="text rise">
+      <h2><span lang="en">Zips from Windows,<br><span class="hl">names intact.</span></span><span lang="zh-Hans">Windows 同事发来的压缩包，<br><span class="hl">名字一个不乱。</span></span></h2>
+      <p class="lead"><span lang="en">Windows saves names in GBK, Big5, Shift-JIS or EUC-KR. Read them the ZIP default way, as DOS text, and you get gibberish. Pouchlet works out the right one.</span><span lang="zh-Hans">Windows 用 GBK、Big5、Shift-JIS 或 EUC-KR 保存文件名。按 ZIP 默认的 DOS 编码去读，就是一堆乱码；Pouchlet 会自动认出正确的那一种。</span></p>
+      <p class="hint"><span lang="en">Drag the line to compare. Both sides are real screenshots of the same zip.</span><span lang="zh-Hans">左右拖动中间的线对比。两边都是同一个压缩包的真实截图。</span></p>
+    </div>
+    <div class="ba-wrap rise" id="ba-wrap">
+      <div class="peek" aria-hidden="true">
+        <div class="pouch-float"><div class="pouch" data-pouch data-look="names"><img src="assets/mascot.png" alt="" width="720" height="606"></div></div>
+      </div>
+      <div class="ba" id="win">
+        <img class="good" lang="en" src="assets/en-names-good.png" alt="Pouchlet showing Japanese file names in Tokyo Project.zip correctly" width="1520" height="1040" loading="lazy">
+        <img class="good" lang="zh-Hans" src="assets/zh-Hans-names-good.png" alt="Pouchlet 正确显示 项目资料.zip 里的中文文件名" width="1520" height="1040" loading="lazy">
+        <div class="ba-bad" aria-hidden="true">
+          <img lang="en" src="assets/en-names-bad.png" alt="" width="1520" height="1040" loading="lazy">
+          <img lang="zh-Hans" src="assets/zh-Hans-names-bad.png" alt="" width="1520" height="1040" loading="lazy">
+        </div>
+        <span class="ba-tag bad"><span lang="en">Read as DOS</span><span lang="zh-Hans">按 DOS 编码读</span></span>
+        <span class="ba-tag good">Pouchlet</span>
+        <input type="range" id="baRange" min="0" max="100" step="0.1" value="22" aria-label="Compare garbled and correct names">
+        <div class="ba-line" aria-hidden="true"><span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. quick look: image left, text right -->
 <section class="block tint">
-  <div class="wrap split">
+  <div class="wrap split rev enter">
     <div class="text rise">
       <h2><span lang="en">Press <span class="hl">Space.</span><br>See everything.</span><span lang="zh-Hans">空格一按，<br><span class="hl">全都看见。</span></span></h2>
-      <p class="lead"><span lang="en">Select an archive in Finder and press Space. Quick Look shows its folders, file count and unpacked size without extracting a thing.</span><span lang="zh-Hans">在“访达”里选中压缩包按空格，“快速查看”就会列出文件夹、文件数量和解压后的大小，什么都不用解压。</span></p>
+      <p class="lead"><span lang="en">Select an archive in Finder and press Space. Quick Look shows its folders, file count and unpacked size, and even previews files inside, without extracting a thing.</span><span lang="zh-Hans">在“访达”里选中压缩包按空格，“快速查看”就会列出文件夹、文件数量和解压后的大小，连里面的文件都能预览，什么都不用解压。</span></p>
       <ul class="ticks">
-        <li><span lang="en"><b>Warns you</b> when an archive contains apps or scripts</span><span lang="zh-Hans">压缩包里有应用或脚本时<b>会提醒你</b></span></li>
-        <li><span lang="en"><b>Extract All</b> right from the preview</span><span lang="zh-Hans">在预览里就能<b>全部解压</b></span></li>
+        <li><span lang="en">Warns you when an archive contains apps or scripts</span><span lang="zh-Hans">压缩包里有应用或脚本时会提醒你</span></li>
+        <li><span lang="en">Extract All right from the preview</span><span lang="zh-Hans">在预览里就能全部解压</span></li>
       </ul>
     </div>
-    <div class="ql rise" id="ql" aria-hidden="true">
-      <div class="ql-panel">
-        <div class="ql-head"><img src="icon.png" alt=""><div><b lang="en">Summer Trip 2026.zip</b><b lang="zh-Hans">2026 夏日旅行.zip</b><small lang="en">12 files · 92.6 MB unpacked · ZIP</small><small lang="zh-Hans">12 个文件 · 解压后 92.7 MB · ZIP</small></div></div>
-        <div lang="en">
+    <div class="ql rise" id="ql">
+      <div class="finder" aria-hidden="true">
+        <div class="fbar"><i></i><i></i><i></i><b><span lang="en">Downloads</span><span lang="zh-Hans">下载</span></b></div>
+        <div class="fbody">
+          <div class="frow2"><svg class="fi"><use href="#i-folder"/></svg><span class="n"><span lang="en">Screenshots</span><span lang="zh-Hans">截屏</span></span><span class="z">—</span></div>
+          <div class="frow2 sel" id="qlFile"><svg class="fi doc"><use href="#i-zip"/></svg><span class="n"><span lang="en">Summer Trip 2026.zip</span><span lang="zh-Hans">2026 夏日旅行.zip</span></span><span class="z">92.7 MB</span></div>
+          <div class="frow2"><svg class="fi doc f-pdf"><use href="#i-doc"/></svg><span class="n"><span lang="en">Boarding Pass.pdf</span><span lang="zh-Hans">登机牌.pdf</span></span><span class="z">240 KB</span></div>
+          <div class="frow2"><svg class="fi doc f-xls"><use href="#i-doc"/></svg><span class="n"><span lang="en">Budget.xlsx</span><span lang="zh-Hans">预算.xlsx</span></span><span class="z">96 KB</span></div>
+          <div class="frow2"><svg class="fi doc f-txt"><use href="#i-doc"/></svg><span class="n"><span lang="en">Notes.txt</span><span lang="zh-Hans">备忘.txt</span></span><span class="z">2 KB</span></div>
+        </div>
+      </div>
+      <div class="ql-pop" id="qlPop">
+        <img class="ql-shot" lang="zh-Hans" src="assets/zh-Hans-quicklook-panel.png" alt="“快速查看”预览 2026 夏日旅行.zip：文件夹、文件数量，以及行程.txt 的内容" width="1284" height="828" loading="lazy">
+        <div class="ql-panel" lang="en" aria-hidden="true">
+          <div class="ql-head"><img src="icon.png" alt=""><div><b>Summer Trip 2026.zip</b><small>12 files · 92.6 MB unpacked · ZIP</small></div></div>
           <div class="ql-row"><span class="nm"><svg class="fi"><use href="#i-folder"/></svg>Photos</span><span class="sz">6 items</span></div>
           <div class="ql-row"><span class="nm"><svg class="fi"><use href="#i-folder"/></svg>Tickets</span><span class="sz">2 items</span></div>
           <div class="ql-row"><span class="nm"><svg class="fi"><use href="#i-folder"/></svg>Videos</span><span class="sz">2 items</span></div>
           <div class="ql-row"><span class="nm ind"><svg class="fi doc f-num"><use href="#i-doc"/></svg>Budget.numbers</span><span class="sz">420 KB</span></div>
           <div class="ql-row"><span class="nm ind"><svg class="fi doc f-txt"><use href="#i-doc"/></svg>Itinerary.txt</span><span class="sz">41 bytes</span></div>
+          <div class="ql-foot"><span>Browse in Pouchlet</span><span>Extract All</span></div>
         </div>
-        <div lang="zh-Hans">
-          <div class="ql-row"><span class="nm"><svg class="fi"><use href="#i-folder"/></svg>照片</span><span class="sz">6 项</span></div>
-          <div class="ql-row"><span class="nm"><svg class="fi"><use href="#i-folder"/></svg>票据</span><span class="sz">2 项</span></div>
-          <div class="ql-row"><span class="nm"><svg class="fi"><use href="#i-folder"/></svg>视频</span><span class="sz">2 项</span></div>
-          <div class="ql-row"><span class="nm ind"><svg class="fi doc f-num"><use href="#i-doc"/></svg>预算.numbers</span><span class="sz">420 KB</span></div>
-          <div class="ql-row"><span class="nm ind"><svg class="fi doc f-txt"><use href="#i-doc"/></svg>行程.txt</span><span class="sz">44 字节</span></div>
-        </div>
-        <div class="ql-foot"><span lang="en">Browse in Pouchlet</span><span lang="zh-Hans">在 Pouchlet 中浏览</span><span lang="en">Extract All</span><span lang="zh-Hans">全部解压</span></div>
       </div>
-      <div class="key" id="key">space</div>
+      <button class="key" id="key" type="button" aria-label="Press space to open Quick Look">space</button>
     </div>
   </div>
 </section>
 
-<!-- 3. no nesting, no junk -->
+<!-- 4. no nesting, no junk: text left, trees right -->
 <section class="block">
-  <div class="narrow center">
-    <h2 class="rise"><span lang="en">One folder out.<br>Nothing extra.</span><span lang="zh-Hans">解出来就一层，<br>不多一个文件。</span></h2>
-    <p class="lead rise"><span lang="en">A zip made on a Mac often unpacks into a folder inside a folder, with __MACOSX and .DS_Store tagging along. Pouchlet skips both.</span><span lang="zh-Hans">Mac 上做的压缩包，解压后常常是文件夹套文件夹，还带着 __MACOSX 和 .DS_Store。Pouchlet 两样都帮你省掉。</span></p>
+  <div class="wrap split enter">
+    <div class="text rise">
+      <h2><span lang="en">One folder out.<br>Nothing extra.</span><span lang="zh-Hans">解出来就一层，<br>不多一个文件。</span></h2>
+      <p class="lead"><span lang="en">A zip made on a Mac often unpacks into a folder inside a folder, with __MACOSX and .DS_Store tagging along. Pouchlet skips both.</span><span lang="zh-Hans">Mac 上做的压缩包，解压后常常是文件夹套文件夹，还带着 __MACOSX 和 .DS_Store。Pouchlet 两样都帮你省掉。</span></p>
+    </div>
     <div class="trees rise" id="trees" aria-hidden="true">
       <div class="tree">
-        <h3><span lang="en">Unzipped elsewhere</span><span lang="zh-Hans">别的工具解出来</span></h3>
+        <div class="fbar"><i></i><i></i><i></i><b><span lang="en">Unzipped elsewhere</span><span lang="zh-Hans">别的工具解出来</span></b></div><div class="fbody">
         <div class="tline"><svg class="fi"><use href="#i-folder"/></svg><span lang="en">Summer Trip 2026</span><span lang="zh-Hans">2026 夏日旅行</span></div>
         <div class="tline d1 junk" style="--i:0"><svg class="fi"><use href="#i-folder"/></svg><span lang="en">Summer Trip 2026</span><span lang="zh-Hans">2026 夏日旅行</span><em lang="en">nested</em><em lang="zh-Hans">套娃</em></div>
         <div class="tline d2"><svg class="fi"><use href="#i-folder"/></svg><span lang="en">Photos</span><span lang="zh-Hans">照片</span></div>
         <div class="tline d2"><svg class="fi doc f-txt"><use href="#i-doc"/></svg><span lang="en">Itinerary.txt</span><span lang="zh-Hans">行程.txt</span></div>
         <div class="tline d1 junk" style="--i:1"><svg class="fi"><use href="#i-folder"/></svg><span>__MACOSX</span><em lang="en">junk</em><em lang="zh-Hans">垃圾</em></div>
         <div class="tline d1 junk" style="--i:2"><svg class="fi doc f-txt"><use href="#i-doc"/></svg><span>.DS_Store</span><em lang="en">junk</em><em lang="zh-Hans">垃圾</em></div>
-      </div>
-      <div class="tree good">
-        <h3><span lang="en">Unzipped with Pouchlet</span><span lang="zh-Hans">用 Pouchlet 解出来</span></h3>
+      </div></div>
+      <div class="tree">
+        <div class="fbar"><i></i><i></i><i></i><b><span lang="en">Unzipped with Pouchlet</span><span lang="zh-Hans">用 Pouchlet 解出来</span></b></div><div class="fbody">
         <div class="tline"><svg class="fi"><use href="#i-folder"/></svg><span lang="en">Summer Trip 2026</span><span lang="zh-Hans">2026 夏日旅行</span></div>
         <div class="tline d1"><svg class="fi"><use href="#i-folder"/></svg><span lang="en">Photos</span><span lang="zh-Hans">照片</span></div>
         <div class="tline d1"><svg class="fi doc f-txt"><use href="#i-doc"/></svg><span lang="en">Itinerary.txt</span><span lang="zh-Hans">行程.txt</span></div>
-      </div>
+      </div></div>
     </div>
   </div>
 </section>
 
-<!-- 4. speed: honest numbers, raced live -->
+<!-- 5. speed: race left, text right -->
 <section class="block tint" id="speed">
-  <div class="wrap">
-    <div class="rise" style="max-width:720px">
+  <div class="wrap split rev enter">
+    <div class="text rise">
       <h2><span lang="en">ZIP in about <span class="hl">half the time.</span></span><span lang="zh-Hans">ZIP 压缩，<span class="hl">用时少了近一半。</span></span></h2>
-      <p class="lead"><span lang="en">Pouchlet runs the official 7-Zip engine on every core of Apple silicon. Here is how it compares with the tools built into macOS.</span><span lang="zh-Hans">Pouchlet 用官方 7-Zip 引擎，跑满 Apple 芯片的每一个核心。下面是它和 macOS 自带工具的对比。</span></p>
+      <p class="lead"><span lang="en">Pouchlet runs the official 7-Zip engine on every core of Apple silicon. Here is how it compares with the tools built into macOS.</span><span lang="zh-Hans">Pouchlet 用官方 7-Zip 引擎，跑满 Apple 芯片的每一个核心。这是它和 macOS 自带工具的实测对比。</span></p>
     </div>
     <div class="race rise" id="chart">
       <div class="sitter" aria-hidden="true">
         <div class="pouch-float"><div class="pouch" data-pouch data-look="race"><img src="assets/mascot.png" alt="" width="720" height="606"></div></div>
       </div>
       <div class="rrow">
-        <div class="stat"><b data-x="1.9">1.9×</b><span lang="en">compressing a big folder to ZIP</span><span lang="zh-Hans">把大文件夹压缩成 ZIP</span></div>
-        <div>
-          <div class="bar us"><span>Pouchlet</span><div class="track" style="--w:52.4%"><div class="fill" data-s="7.7">7.7 s</div></div></div>
-          <div class="bar"><span lang="en">Built-in</span><span lang="zh-Hans">系统自带</span><div class="track" style="--w:100%"><div class="fill" data-s="14.7">14.7 s</div></div></div>
-        </div>
+        <div class="rhead"><span><span lang="en">Compressing a big folder to ZIP</span><span lang="zh-Hans">把大文件夹压缩成 ZIP</span></span><b class="gain">1.9×</b></div>
+          <div class="lane us"><span>Pouchlet</span><div class="run"><i style="--w:43.0%"></i><span class="t" data-s="7.7">7.7 s</span><span class="ok" aria-hidden="true">✓</span></div></div>
+          <div class="lane"><span lang="en">Built-in</span><span lang="zh-Hans">系统自带</span><div class="run"><i style="--w:82.0%"></i><span class="t" data-s="14.7">14.7 s</span></div></div>
       </div>
       <div class="rrow">
-        <div class="stat"><b data-x="1.8">1.8×</b><span lang="en">extracting a ZIP of thousands of files</span><span lang="zh-Hans">解压含几千个文件的 ZIP</span></div>
-        <div>
-          <div class="bar us"><span>Pouchlet</span><div class="track" style="--w:55.7%"><div class="fill" data-s="1.75">1.75 s</div></div></div>
-          <div class="bar"><span lang="en">Built-in</span><span lang="zh-Hans">系统自带</span><div class="track" style="--w:100%"><div class="fill" data-s="3.14">3.14 s</div></div></div>
-        </div>
+        <div class="rhead"><span><span lang="en">Extracting a ZIP of thousands of files</span><span lang="zh-Hans">解压含几千个文件的 ZIP</span></span><b class="gain">1.8×</b></div>
+          <div class="lane us"><span>Pouchlet</span><div class="run"><i style="--w:9.8%"></i><span class="t" data-s="1.75">1.75 s</span><span class="ok" aria-hidden="true">✓</span></div></div>
+          <div class="lane"><span lang="en">Built-in</span><span lang="zh-Hans">系统自带</span><div class="run"><i style="--w:17.5%"></i><span class="t" data-s="3.14">3.14 s</span></div></div>
       </div>
       <div class="rrow">
-        <div class="stat"><b data-x="1.3">1.3×</b><span lang="en">compressing a big folder to TAR.GZ</span><span lang="zh-Hans">把大文件夹压缩成 TAR.GZ</span></div>
-        <div>
-          <div class="bar us"><span>Pouchlet</span><div class="track" style="--w:76.6%"><div class="fill" data-s="10.8">10.8 s</div></div></div>
-          <div class="bar"><span lang="en">Built-in</span><span lang="zh-Hans">系统自带</span><div class="track" style="--w:100%"><div class="fill" data-s="14.1">14.1 s</div></div></div>
-        </div>
+        <div class="rhead"><span><span lang="en">Compressing a big folder to TAR.GZ</span><span lang="zh-Hans">把大文件夹压缩成 TAR.GZ</span></span><b class="gain">1.3×</b></div>
+          <div class="lane us"><span>Pouchlet</span><div class="run"><i style="--w:60.2%"></i><span class="t" data-s="10.8">10.8 s</span><span class="ok" aria-hidden="true">✓</span></div></div>
+          <div class="lane"><span lang="en">Built-in</span><span lang="zh-Hans">系统自带</span><div class="run"><i style="--w:78.7%"></i><span class="t" data-s="14.1">14.1 s</span></div></div>
       </div>
-      <p class="note"><span lang="en">Measured on a Mac with M4. “Built-in” means the ditto and bsdtar tools that come with macOS; 1.9× means it took 1.9 times as long. Shorter bars are better.</span><span lang="zh-Hans">在 M4 芯片的 Mac 上测得。“系统自带”指 macOS 自带的 ditto 和 bsdtar 工具；1.9× 表示系统自带工具的用时是 Pouchlet 的 1.9 倍。条越短越好。</span><button class="replay" id="replay" type="button"><span lang="en">Race again ↻</span><span lang="zh-Hans">再比一次 ↻</span></button></p>
+      <p class="note"><span lang="en">Measured on a Mac with M4, against the ditto and bsdtar tools built into macOS.</span><span lang="zh-Hans">在 M4 芯片的 Mac 上测得，对比的是 macOS 自带的 ditto 和 bsdtar。</span><button class="replay" id="replay" type="button"><span lang="en">Race again ↻</span><span lang="zh-Hans">再比一次 ↻</span></button></p>
     </div>
   </div>
 </section>
 
-<!-- 5. making archives -->
+<!-- 6. making archives: text left, image right -->
 <section class="block">
-  <div class="wrap split rev">
+  <div class="wrap split enter">
     <div class="text rise">
       <h2><span lang="en">Six formats.<br>Passwords. Split files.</span><span lang="zh-Hans">六种格式，<br>能加密，能分卷。</span></h2>
       <ul class="ticks">
-        <li><span lang="en"><b>ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ</b></span><span lang="zh-Hans"><b>ZIP、7Z、TAR、TAR.GZ、TAR.BZ2、TAR.XZ</b></span></li>
-        <li><span lang="en"><b>AES-256 passwords</b>, with hidden file names in 7Z</span><span lang="zh-Hans"><b>AES-256 加密</b>，7Z 还能隐藏文件名</span></li>
-        <li><span lang="en"><b>Split</b> into parts that fit email, cloud drives or USB sticks</span><span lang="zh-Hans"><b>分卷</b>成适合邮件、网盘和 U 盘的大小</span></li>
-        <li><span lang="en"><b>Presets</b> like “Send to Windows” and “Encrypted Backup”</span><span lang="zh-Hans"><b>常用预设</b>，比如“发给 Windows 同事”“加密备份”</span></li>
-        <li><span lang="en"><b>Check</b> the result, then move the originals to the Trash</span><span lang="zh-Hans">压缩后<b>自动检查</b>，通过后再把原文件移到废纸篓</span></li>
-        <li><span lang="en"><b>Edit in place:</b> add, delete, rename, or convert to another format</span><span lang="zh-Hans"><b>直接修改</b>：添加、删除、重命名，或转换为其他格式</span></li>
+        <li><span lang="en">ZIP, 7Z, TAR, TAR.GZ, TAR.BZ2, TAR.XZ</span><span lang="zh-Hans">ZIP、7Z、TAR、TAR.GZ、TAR.BZ2、TAR.XZ</span></li>
+        <li><span lang="en">AES-256 passwords, with hidden file names in 7Z</span><span lang="zh-Hans">AES-256 加密，7Z 还能隐藏文件名</span></li>
+        <li><span lang="en">Split into parts that fit email, cloud drives or USB sticks</span><span lang="zh-Hans">分卷成适合邮件、网盘和 U 盘的大小</span></li>
+        <li><span lang="en">Presets like “Send to Windows” and “Encrypted Backup”</span><span lang="zh-Hans">常用预设，比如“发给 Windows 同事”“加密备份”</span></li>
+        <li><span lang="en">Check the result, then move the originals to the Trash</span><span lang="zh-Hans">压缩后自动检查，通过后再把原文件移到废纸篓</span></li>
+        <li><span lang="en">Edit in place: add, delete, rename, or convert to another format</span><span lang="zh-Hans">直接修改：添加、删除、重命名，或转换为其他格式</span></li>
       </ul>
     </div>
     <div class="rise">
-      <img class="shot" lang="en" src="assets/en-compress.png" alt="Pouchlet compress options" width="1092" height="1300" loading="lazy" style="max-width:480px;margin-inline:auto">
-      <img class="shot" lang="zh-Hans" src="assets/zh-Hans-compress.png" alt="Pouchlet 压缩选项" width="1092" height="1300" loading="lazy" style="max-width:480px;margin-inline:auto">
+    <div class="cstage" id="cstage">
+      <div class="csheet" id="csheet" role="group" aria-label="Compress settings">
+        <div class="cs-head">
+          <span class="cs-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M3.2 3.5h17.6c.7 0 1.2.5 1.2 1.2v2.6c0 .7-.5 1.2-1.2 1.2H3.2C2.5 8.5 2 8 2 7.3V4.7c0-.7.5-1.2 1.2-1.2zM3.3 9.8h17.4v8.7c0 1.3-1 2.3-2.3 2.3H5.6c-1.3 0-2.3-1-2.3-2.3zm6.5 2.4c-.5 0-.9.4-.9.9s.4.9.9.9h4.4c.5 0 .9-.4.9-.9s-.4-.9-.9-.9z"/></svg></span>
+          <div class="cs-title">
+            <b><span lang="en">Compress “Summer Trip 2026”</span><span lang="zh-Hans">压缩「2026 夏日旅行」</span></b>
+            <div class="cs-name"><input lang="en" class="cs-input" value="Summer Trip 2026" aria-label="File name" spellcheck="false"><input lang="zh-Hans" class="cs-input" value="2026 夏日旅行" aria-label="文件名" spellcheck="false"><span class="cs-ext" id="csExt">.7z</span></div>
+          </div>
+        </div>
+        <div class="cs-scroll">
+          <div class="cs-sec"><h4><span lang="en">Preset</span><span lang="zh-Hans">预设</span></h4>
+            <div class="cs-chips"><button type="button" class="pchip" data-format="zip" data-level="5" data-pw="0" data-split="none"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" d="M21 3 3.5 10.2l7 3.1 3.1 7zM21 3l-10.5 10.3"/></svg></i><span lang="en">Send to Windows</span><span lang="zh-Hans">发给 Windows 同事</span></button><button type="button" class="pchip" data-format="7z" data-level="9" data-pw="0" data-split="none"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M4 4l6.5 6.5M10.5 5v5.5H5M20 20l-6.5-6.5M13.5 19v-5.5H19"/></svg></i><span lang="en">Smallest</span><span lang="zh-Hans">体积最小</span></button><button type="button" class="pchip" data-format="7z" data-level="7" data-pw="1" data-split="none"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" d="M7.5 10.5V8a4.5 4.5 0 0 1 9 0v2.5M6.5 10.5h11c.8 0 1.5.7 1.5 1.5v7c0 .8-.7 1.5-1.5 1.5h-11c-.8 0-1.5-.7-1.5-1.5v-7c0-.8.7-1.5 1.5-1.5z"/></svg></i><span lang="en">Encrypted Backup</span><span lang="zh-Hans">加密备份</span></button><button type="button" class="pchip" data-format="zip" data-level="5" data-pw="0" data-split="mb100"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" d="M5 4.5h14c.8 0 1.5.7 1.5 1.5v12c0 .8-.7 1.5-1.5 1.5H5c-.8 0-1.5-.7-1.5-1.5V6c0-.8.7-1.5 1.5-1.5zM12 4.5v15"/></svg></i><span lang="en">Cloud Upload (Split)</span><span lang="zh-Hans">网盘分卷</span></button><button type="button" class="pchip save" id="csSave"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M12 5v14M5 12h14"/></svg></i><span lang="en">Save as Preset</span><span lang="zh-Hans">存为预设</span></button></div>
+            <div class="cs-pop" id="csPop" hidden>
+              <b><span lang="en">Save Current Settings as a Preset</span><span lang="zh-Hans">将当前设置存为预设</span></b>
+              <input class="cs-field" id="csPopName" placeholder="Preset name, e.g. “For the design team”">
+              <div class="cs-pop-row"><button type="button" class="cs-btn prim" id="csPopSave" disabled><span lang="en">Save</span><span lang="zh-Hans">存储</span></button></div>
+            </div>
+          </div>
+          <div class="cs-sec"><h4><span lang="en">Format</span><span lang="zh-Hans">格式</span></h4><div class="cs-grid"><button type="button" class="fchip" data-format="zip"><b>ZIP</b><small><span lang="en">Opens anywhere</span><span lang="zh-Hans">到哪都能打开</span></small></button><button type="button" class="fchip" data-format="7z"><b>7Z</b><small><span lang="en">Smallest</span><span lang="zh-Hans">体积最小</span></small></button><button type="button" class="fchip" data-format="tar.gz"><b>TAR.GZ</b><small><span lang="en">Common on Linux</span><span lang="zh-Hans">Linux 常用</span></small></button><button type="button" class="fchip" data-format="tar.xz"><b>TAR.XZ</b><small><span lang="en">Compact tar</span><span lang="zh-Hans">高压缩 tar</span></small></button><button type="button" class="fchip" data-format="tar.bz2"><b>TAR.BZ2</b><small><span lang="en">Classic Unix</span><span lang="zh-Hans">经典 Unix</span></small></button><button type="button" class="fchip" data-format="tar"><b>TAR</b><small><span lang="en">Packing only</span><span lang="zh-Hans">仅打包</span></small></button></div></div>
+          <div class="cs-sec"><h4><span lang="en">Compression</span><span lang="zh-Hans">压缩程度</span></h4>
+            <input type="range" class="cs-slider" id="csLevel" min="0" max="9" step="1" value="5" aria-label="Compression level">
+            <div class="cs-ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="cs-scale"><span lang="en">Store only</span><span lang="zh-Hans">仅打包</span><span lang="en">Balanced</span><span lang="zh-Hans">均衡</span><span lang="en">Smallest</span><span lang="zh-Hans">体积最小</span></div>
+            <div class="cs-hint" id="csHint"></div>
+          </div>
+          <div class="cs-sec cs-pw" id="csPwSec"><h4><span lang="en">Password Protection</span><span lang="zh-Hans">密码保护</span></h4>
+            <label class="cs-toggle"><span><span lang="en">Set a password (AES-256 encryption)</span><span lang="zh-Hans">设置密码（AES-256 加密）</span></span><button type="button" role="switch" aria-checked="false" class="cs-switch" id="csPw"><i></i></button></label>
+            <div class="cs-pwbody" id="csPwBody">
+              <div class="cs-pwrow"><input class="cs-field" id="csPwField" type="password" placeholder="Password" autocomplete="off"><button type="button" class="cs-eye" id="csEye" aria-label="Show password"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button></div>
+              <label class="cs-check"><input type="checkbox"><i></i><span lang="en">Save this password in my Keychain</span><span lang="zh-Hans">将此密码存储到我的钥匙串</span></label>
+              <label class="cs-check" id="csHide"><input type="checkbox" checked><i></i><span lang="en">Also hide file names (nothing is visible without the password)</span><span lang="zh-Hans">同时隐藏文件名（不输密码看不到里面有什么）</span></label>
+              <p class="cs-note" id="csZipNote"><span lang="en">File names stay visible in encrypted ZIP files. Choose 7Z to hide them.</span><span lang="zh-Hans">ZIP 加密后文件名仍可见；要隐藏文件名请选 7Z。</span></p>
+            </div>
+          </div>
+          <div class="cs-sec" id="csSplitSec"><h4><span lang="en">Split</span><span lang="zh-Hans">分卷</span></h4>
+            <div class="cs-splitrow"><select class="cs-popup" lang="en" id="csSplitEn" aria-label="Split"><option value="none">No Splitting</option><option value="mb100">100 MB (email / cloud drives)</option><option value="mb700">700 MB</option><option value="gb2">2 GB</option><option value="fat32">4 GB (FAT32 USB drives)</option><option value="custom">Custom…</option></select><select class="cs-popup" lang="zh-Hans" id="csSplitZh" aria-label="分卷"><option value="none">不分卷</option><option value="mb100">100 MB（邮件 / 网盘）</option><option value="mb700">700 MB</option><option value="gb2">2 GB</option><option value="fat32">4 GB（FAT32 U 盘）</option><option value="custom">自定义…</option></select><span class="cs-custom" id="csCustom"><input class="cs-field" value="100" inputmode="numeric"> MB</span></div>
+          </div>
+          <div class="cs-sec"><h4><span lang="en">Options</span><span lang="zh-Hans">选项</span></h4>
+            <label class="cs-check sm"><input type="checkbox"><i></i><span lang="en">Check the archive for errors when done</span><span lang="zh-Hans">完成后检查压缩包有无错误</span></label>
+            <label class="cs-check sm"><input type="checkbox"><i></i><span lang="en">Move the originals to the Trash after a successful check</span><span lang="zh-Hans">检查通过后将原文件移到废纸篓</span></label>
+            <label class="cs-check sm"><input type="checkbox" checked><i></i><span lang="en">Leave out Mac-only files such as .DS_Store and __MACOSX</span><span lang="zh-Hans">排除 .DS_Store、__MACOSX 等 Mac 专属文件</span></label>
+          </div>
+        </div>
+        <div class="cs-foot">
+          <button type="button" class="cs-btn" id="csCancel"><span lang="en">Cancel</span><span lang="zh-Hans">取消</span></button>
+          <button type="button" class="cs-btn prim" id="csGo"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M3.2 3.5h17.6c.7 0 1.2.5 1.2 1.2v2.6c0 .7-.5 1.2-1.2 1.2H3.2C2.5 8.5 2 8 2 7.3V4.7c0-.7.5-1.2 1.2-1.2zM3.3 9.8h17.4v8.7c0 1.3-1 2.3-2.3 2.3H5.6c-1.3 0-2.3-1-2.3-2.3zm6.5 2.4c-.5 0-.9.4-.9.9s.4.9.9.9h4.4c.5 0 .9-.4.9-.9s-.4-.9-.9-.9z"/></svg><span lang="en">Compress</span><span lang="zh-Hans">压缩</span></button>
+        </div>
+      </div>
+      <div class="cs-done" id="csDone" aria-live="polite">
+        <div class="cs-ring" id="csRing"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16"/><circle class="run" cx="20" cy="20" r="16"/></svg></div>
+        <div class="cs-file" id="csFile"><svg viewBox="0 0 16 20" aria-hidden="true"><use href="#i-zip"/></svg><span id="csFileName"></span><small id="csFileMeta"></small></div>
+        <button type="button" class="cs-again" id="csAgain"></button>
+      </div>
+    </div>
     </div>
   </div>
 </section>
 
-<!-- 6. where it shows up -->
-<section class="block" style="padding-top:0">
-  <div class="wrap">
-    <h2 class="rise"><span lang="en">Right-click. Space. Shortcuts.</span><span lang="zh-Hans">右键、空格、快捷指令，随手就用。</span></h2>
-    <div class="ways">
-      <div class="way rise"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 9h8M8 13h5"/></svg><b><span lang="en">Finder menu</span><span lang="zh-Hans">“访达”右键菜单</span></b><p><span lang="en">“Compress” and “Extract Here” sit at the top of the right-click menu.</span><span lang="zh-Hans">“压缩”和“解压到这里”就在右键菜单最上面。</span></p></div>
-      <div class="way rise"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><b><span lang="en">Quick Look</span><span lang="zh-Hans">快速查看</span></b><p><span lang="en">Select any archive and press <kbd>space</kbd>.</span><span lang="zh-Hans">选中压缩包，按 <kbd>空格</kbd>。</span></p></div>
-      <div class="way rise"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg><b><span lang="en">Shortcuts</span><span lang="zh-Hans">快捷指令</span></b><p><span lang="en">Compress, Extract and List Contents actions.</span><span lang="zh-Hans">“压缩”“解压”“列出内容”三个动作。</span></p></div>
-      <div class="way rise"><svg viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg><b>AppleScript</b><p><span lang="en">Script batch jobs, like unpacking every zip in Downloads.</span><span lang="zh-Hans">写脚本批量处理，比如把“下载”里的压缩包全部解开。</span></p></div>
-    </div>
+<!-- 7. where it shows up: a row of cards you can swipe through -->
+<section class="block tint ways-sec">
+  <div class="wrap enter">
+    <h2 class="ways-title"><span lang="en">No need to open the app first.</span><span lang="zh-Hans">不用先打开 App，随手就用。</span></h2>
+  </div>
+  <div class="rail" id="rail">
+    <article class="wcard" data-demo="finder">
+      <div class="wtop">
+        <div><h3><span lang="en">Right-click. Extract.</span><span lang="zh-Hans">右键一点，就地解压。</span></h3>
+        <p><span lang="en">Pouchlet sits at the top of Finder’s right-click menu: extract here, compress, or pick a preset, without opening anything.</span><span lang="zh-Hans">Pouchlet 就在“访达”右键菜单的最上面：解压到这里、压缩，或者选一个预设，什么都不用先打开。</span></p></div>
+        <span class="wtag"><span lang="en">Finder</span><span lang="zh-Hans">访达</span></span>
+      </div>
+      <div class="wvis" aria-hidden="true">
+        <div class="stage st-finder">
+          <div class="fi-item zipf"><svg class="zipico" viewBox="0 0 16 20" aria-hidden="true"><use href="#i-zip"/></svg><span><span lang="en">Tokyo Project.zip</span><span lang="zh-Hans">项目资料.zip</span></span></div>
+          <div class="fi-item outf"><svg class="dirico" viewBox="0 0 20 16" aria-hidden="true"><use href="#i-folder"/></svg><span><span lang="en">Tokyo Project</span><span lang="zh-Hans">项目资料</span></span></div>
+          <div class="cmenu big">
+            <div><span lang="en">Open</span><span lang="zh-Hans">打开</span></div>
+            <div class="sub"><span><span lang="en">Open With</span><span lang="zh-Hans">打开方式</span></span><span>›</span></div><hr>
+            <div class="go"><span lang="en">Extract Here with Pouchlet</span><span lang="zh-Hans">用 Pouchlet 解压到这里</span></div>
+            <div><span lang="en">Compress with Pouchlet</span><span lang="zh-Hans">用 Pouchlet 压缩</span></div>
+            <div class="sub"><span>Pouchlet</span><span>›</span></div><hr>
+            <div class="dim"><span lang="en">Copy</span><span lang="zh-Hans">拷贝</span></div>
+          </div>
+          <svg class="cur" viewBox="0 0 16 22" aria-hidden="true"><path d="M1.5 1.5v16.2l4.3-4 2.8 6.4 2.6-1.1-2.8-6.3h5.9z" fill="#111" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </article>
+    <article class="wcard" data-demo="ql">
+      <div class="wtop">
+        <div><h3><span lang="en">Space. A look inside.</span><span lang="zh-Hans">空格一按，先看再解。</span></h3>
+        <p><span lang="en">Select an archive and press Space. Quick Look lists what’s inside, how big it unpacks, and warns you about apps or scripts.</span><span lang="zh-Hans">选中压缩包按空格，“快速查看”就列出里面有什么、解压后多大，有应用或脚本还会提醒你。</span></p></div>
+        <span class="wtag"><span lang="en">Quick Look</span><span lang="zh-Hans">快速查看</span></span>
+      </div>
+      <div class="wvis" aria-hidden="true">
+        <div class="stage st-ql">
+          <div class="fi-item zipf sel"><svg class="zipico" viewBox="0 0 16 20" aria-hidden="true"><use href="#i-zip"/></svg><span><span lang="en">Summer Trip 2026.zip</span><span lang="zh-Hans">2026 夏日旅行.zip</span></span></div>
+          <span class="bigkey">space</span>
+          <div class="qlmini">
+            <div class="qlm-head"><img src="icon.png" alt=""><div><b><span lang="en">Summer Trip 2026.zip</span><span lang="zh-Hans">2026 夏日旅行.zip</span></b><small><span lang="en">12 files · 92.6 MB unpacked</span><span lang="zh-Hans">12 个文件 · 解压后 92.7 MB</span></small></div></div>
+            <div class="qlm-row"><svg class="fi"><use href="#i-folder"/></svg><span lang="en">Photos</span><span lang="zh-Hans">照片</span><em><span lang="en">6 items</span><span lang="zh-Hans">6 项</span></em></div>
+            <div class="qlm-row"><svg class="fi"><use href="#i-folder"/></svg><span lang="en">Tickets</span><span lang="zh-Hans">票据</span><em><span lang="en">2 items</span><span lang="zh-Hans">2 项</span></em></div>
+            <div class="qlm-row"><svg class="fi doc f-txt"><use href="#i-doc"/></svg><span lang="en">Itinerary.txt</span><span lang="zh-Hans">行程.txt</span><em><span lang="en">41 bytes</span><span lang="zh-Hans">44 字节</span></em></div>
+          </div>
+        </div>
+      </div>
+    </article>
+    <article class="wcard" data-demo="shortcuts">
+      <div class="wtop">
+        <div><h3><span lang="en">Let Shortcuts do it.</span><span lang="zh-Hans">交给快捷指令，自动跑。</span></h3>
+        <p><span lang="en">Three actions: Compress, Extract and List Archive Contents. Chain them with anything else in Shortcuts.</span><span lang="zh-Hans">“用 Pouchlet 压缩”“用 Pouchlet 解压”“列出压缩包内容”三个动作，能和“快捷指令”里的其他动作随意组合。</span></p></div>
+        <span class="wtag"><span lang="en">Shortcuts</span><span lang="zh-Hans">快捷指令</span></span>
+      </div>
+      <div class="wvis" aria-hidden="true">
+        <div class="stage st-sc">
+          <div class="banner"><img src="icon.png" alt=""><div><b>Pouchlet</b><span><span lang="en">Extracted 3 archives</span><span lang="zh-Hans">已解压 3 个压缩包</span></span></div></div>
+          <div class="flow">
+            <div class="action"><span class="aic gray">⌘</span><span lang="en">Get Contents of Folder</span><span lang="zh-Hans">获取文件夹的内容</span><span class="tok"><span lang="en">Downloads</span><span lang="zh-Hans">下载</span></span><i class="bar"></i></div>
+            <i class="link"></i>
+            <div class="action"><img src="icon.png" alt=""><span lang="en">Extract with Pouchlet</span><span lang="zh-Hans">用 Pouchlet 解压</span><span class="tok"><span lang="en">Contents of Folder</span><span lang="zh-Hans">文件夹的内容</span></span><i class="bar"></i></div>
+            <i class="link"></i>
+            <div class="action"><span class="aic red">●</span><span lang="en">Show Notification</span><span lang="zh-Hans">显示通知</span><span class="tok"><span lang="en">Done</span><span lang="zh-Hans">解压完成</span></span><i class="bar"></i></div>
+          </div>
+        </div>
+      </div>
+    </article>
+    <article class="wcard" data-demo="script">
+      <div class="wtop">
+        <div><h3><span lang="en">A few lines of AppleScript.</span><span lang="zh-Hans">写几行脚本，批量处理。</span></h3>
+        <p><span lang="en">Compress, extract and list contents from your own scripts. This one unpacks every zip in Downloads.</span><span lang="zh-Hans">在自己的脚本里压缩、解压、列出内容。比如下面这段，把“下载”里的 zip 全部解开。</span></p></div>
+        <span class="wtag">AppleScript</span>
+      </div>
+      <div class="wvis" aria-hidden="true">
+        <div class="stage st-as">
+          <div class="code big"><span class="ln"><span class="k">tell application</span> <span class="s">"Finder"</span> <span class="k">to set</span> zips <span class="k">to</span> ¬</span><span class="ln">    <span class="k">every file of</span> (<span class="k">path to</span> downloads folder) ¬</span><span class="ln">    <span class="k">whose</span> name extension <span class="k">is</span> <span class="s">"zip"</span></span><span class="ln"><span class="k">repeat with</span> z <span class="k">in</span> zips</span><span class="ln">    <span class="k">tell application</span> <span class="s">"Pouchlet"</span> <span class="k">to</span> <span class="k">extract</span> (z <span class="k">as</span> alias)</span><span class="ln"><span class="k">end repeat</span></span></div>
+          <div class="results"><svg class="dirico" viewBox="0 0 20 16" aria-hidden="true"><use href="#i-folder"/></svg><span><span lang="en">Invoices</span><span lang="zh-Hans">发票</span></span><svg class="dirico" viewBox="0 0 20 16" aria-hidden="true"><use href="#i-folder"/></svg><span><span lang="en">Tokyo Project</span><span lang="zh-Hans">项目资料</span></span><svg class="dirico" viewBox="0 0 20 16" aria-hidden="true"><use href="#i-folder"/></svg><span><span lang="en">Summer Trip 2026</span><span lang="zh-Hans">2026 夏日旅行</span></span></div>
+        </div>
+      </div>
+    </article>
+  </div>
+  <div class="rail-nav">
+    <button type="button" id="railPrev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"/></svg></button>
+    <button type="button" id="railNext" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></svg></button>
   </div>
 </section>
 
 <!-- 7. privacy -->
 <section class="block" id="privacy" style="padding-top:60px">
-  <div class="wrap">
+  <div class="wrap enter">
     <div class="privacy rise">
       <div class="napper" id="napper" aria-hidden="true">
         <div class="pouch-float"><div class="pouch sleep" data-pouch data-pose="sleep"><img src="assets/mascot.png" alt="" width="720" height="606"></div></div>
@@ -561,18 +899,25 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
       <div>
         <h2><span lang="en">It can’t go online.<br>Not even if it tried.</span><span lang="zh-Hans">它连联网的权限<br>都没有。</span></h2>
         <p><span lang="en">Pouchlet runs in the macOS sandbox with no network permission, so it has no way to send your files anywhere. No account, no analytics. Passwords you choose to remember stay in your own Keychain.</span><span lang="zh-Hans">Pouchlet 运行在 macOS 沙盒里，没有申请联网权限，想把你的文件传出去也做不到。没有账户，没有统计；你选择记住的密码只存在你自己的钥匙串里。</span> <a href="privacy/" style="color:#fff;text-decoration:underline"><span lang="en">Privacy policy</span><span lang="zh-Hans">隐私政策</span></a></p>
+        <ul class="plain">
+          <li><span lang="en">Sandboxed, with no network permission</span><span lang="zh-Hans">沙盒运行，没有联网权限</span></li>
+          <li><span lang="en">Blocks archives that try to write outside their folder</span><span lang="zh-Hans">拦截想往文件夹外面写文件的恶意压缩包</span></li>
+        </ul>
       </div>
-      <ul>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg><span lang="en">App Store privacy label: Data Not Collected</span><span lang="zh-Hans">App Store 隐私标签：未收集数据</span></li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span lang="en">Sandboxed, with no network permission</span><span lang="zh-Hans">沙盒运行，没有联网权限</span></li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg><span lang="en">Blocks archives that try to write outside their folder</span><span lang="zh-Hans">拦截想往文件夹外面写文件的恶意压缩包</span></li>
-      </ul>
+      <div class="aslabel" role="img" aria-label="App Store privacy label: Data Not Collected">
+        <div class="as-head"><span lang="en">App Privacy</span><span lang="zh-Hans">App 隐私</span></div>
+        <div class="as-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M7.8 12.3l2.8 2.8 5.6-6.2"/></svg>
+          <b><span lang="en">Data Not Collected</span><span lang="zh-Hans">未收集数据</span></b>
+          <p><span lang="en">The developer does not collect any data from this app.</span><span lang="zh-Hans">开发者不会从此 App 中收集任何数据。</span></p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <section class="final">
-  <div class="wrap">
+  <div class="wrap enter">
     <div class="pouch-stage rise">
       <div class="pouch-float">
         <div class="pouch" data-pouch><img src="assets/mascot.png" alt="Pouchlet mascot" width="720" height="606"></div>
@@ -582,6 +927,9 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
     <h2 class="rise"><span lang="en">Meet Pouchlet.</span><span lang="zh-Hans">认识一下 Pouchlet。</span></h2>
     <p class="lead rise"><span lang="en">US$7, once. No subscription, no ads, no in-app purchases.</span><span lang="zh-Hans">7 美元，一次买断。没有订阅，没有广告，没有内购。</span></p>
     <div class="cta rise"><span class="btn primary" aria-disabled="true"><span lang="en">Coming soon to the Mac App Store</span><span lang="zh-Hans">即将登陆 Mac App Store</span></span></div>
+  </div>
+  <div class="pit" id="pit" aria-label="Opens RAR, 7Z, ZIP, TAR, GZ, BZ2, XZ, ISO, CAB and split .001 archives">
+    <span class="tile">TAR</span><span class="tile">GZ</span><span class="tile">ZIP</span><span class="tile">BZ2</span><span class="tile">RAR</span><span class="tile">XZ</span><span class="tile">7Z</span><span class="tile">ISO</span><span class="tile">CAB</span><span class="tile">.001</span>
   </div>
 </section>
 
@@ -597,6 +945,7 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
   </div>
 </footer>
 
+<script src="assets/matter.min.js"></script>
 <script>
 (function () {
   var root = document.documentElement;
@@ -621,41 +970,148 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
   });
 
   /* ---------- stagger indices ---------- */
-  $$(".formats span").forEach(function (el, i) { el.style.setProperty("--d", 640 + i * 45 + "ms"); });
-  $$("ul.ticks").forEach(function (ul) { $$("li", ul).forEach(function (li, i) { li.style.setProperty("--i", i); }); });
-  $$(".ql [lang]").forEach(function (g) { $$(".ql-row", g).forEach(function (r, i) { r.style.setProperty("--i", i); }); });
-  $$(".privacy li").forEach(function (li, i) { li.style.setProperty("--i", i); });
+        
+  /* ---------- format tiles: drop into the pit, then drag and throw ---------- */
+  (function () {
+    var pit = $("#pit"), tiles = $$(".tile", pit);
+    function archiveIcon(label) {
+      var teeth = "";
+      for (var i = 0; i < 9; i++) {
+        var y = 2.6 + i * 4.3;
+        teeth += '<rect x="30.9" y="' + y.toFixed(1) + '" width="3.3" height="2.3" rx=".6" fill="#b3b8bf"/>' +
+                 '<rect x="33.9" y="' + (y + 2.15).toFixed(1) + '" width="3.3" height="2.3" rx=".6" fill="#9aa0a8"/>';
+      }
+      return '<svg viewBox="0 0 68 86" aria-hidden="true">' +
+        '<path d="M7 1.5H45L66.5 23V80A4.5 4.5 0 0 1 62 84.5H7A4.5 4.5 0 0 1 2.5 80V6A4.5 4.5 0 0 1 7 1.5Z" fill="#fff" stroke="#d2d5da"/>' +
+        '<path d="M45 1.5V18A5 5 0 0 0 50 23H66.5" fill="#eef0f2" stroke="#d2d5da" stroke-linejoin="round"/>' +
+        '<rect x="33.1" y="1.6" width="1.8" height="40" fill="#e3e5e8"/>' + teeth +
+        '<rect x="30.1" y="41" width="7.8" height="13.5" rx="2.6" fill="#a2a8b0"/>' +
+        '<rect x="32.3" y="44" width="3.4" height="6.6" rx="1.3" fill="#fff"/>' +
+        '<text x="34" y="74.5" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, Helvetica, sans-serif" font-weight="700" font-size="' + (label.length > 3 ? 10.5 : 12) + '" letter-spacing=".3" fill="#80868e">' + label + '</text>' +
+        '</svg>';
+    }
+    tiles.forEach(function (t) { var label = t.textContent; t.setAttribute("title", label); t.innerHTML = archiveIcon(label); t.classList.add("drawn"); });
+    if (reduced || !window.Matter) return; // the tiles stay as a tidy row
+    var M = window.Matter, Engine = M.Engine, Bodies = M.Bodies, Body = M.Body, Composite = M.Composite, Constraint = M.Constraint, Runner = M.Runner, Events = M.Events, Sleeping = M.Sleeping;
+    pit.classList.add("live"); pit.parentElement.classList.add("has-pit");
+    var engine = Engine.create({ enableSleeping: true }), runner = Runner.create();
+    engine.gravity.y = 1.2;
+    var W = pit.clientWidth, H = pit.clientHeight, T = 80;
+    var floor = Bodies.rectangle(W / 2, H + T / 2, W + 600, T, { isStatic: true });
+    var left = Bodies.rectangle(-T / 2, H - 1500, T, 3000, { isStatic: true });
+    var right = Bodies.rectangle(W + T / 2, H - 1500, T, 3000, { isStatic: true });
+    Composite.add(engine.world, [floor, left, right]);
 
-  /* ---------- garbled names: toggle between other apps and Pouchlet ---------- */
-  var win = $("#win"), seg = $("#seg"), mode = "good";
-  var names = $$(".nt", win);
-  names.forEach(function (n) { n.dataset.good = n.textContent; });
-  function morph(el, to, delay, junkFrom) {
-    var from = el.textContent, start = performance.now() + delay, dur = 650;
-    clearTimeout(el._t);
-    (function tick() {
-      var t = Math.min(1, Math.max(0, (performance.now() - start) / dur));
-      var len = Math.round(from.length + (to.length - from.length) * t), n = Math.floor(to.length * t), out = to.slice(0, n);
-      for (var i = n; i < len; i++) out += junkFrom[(Math.random() * junkFrom.length) | 0];
-      el.textContent = out;
-      if (t < 1) el._t = setTimeout(tick, 40);
-    })();
-  }
-  function setMode(m, animate) {
-    mode = m;
-    seg.classList.toggle("bad", m === "bad");
-    win.classList.toggle("bad", m === "bad");
-    $$("button", seg).forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.mode === m ? "true" : "false"); });
-    names.forEach(function (n, i) {
-      var to = n.dataset[m];
-      if (!animate) { clearTimeout(n._t); n.textContent = to; return; }
-      morph(n, to, (i % 7) * 70, n.dataset.bad);
+    // a whole heap of archives: the everyday formats show up most, sizes vary a little
+    var base = tiles[0].offsetWidth, narrow = W < 600;
+    var POOL = ["ZIP", "RAR", "7Z", "ZIP", "RAR", "7Z", "ZIP", "TAR", "GZ", "BZ2", "XZ", "ISO", "CAB", ".001", "TAR", "GZ"];
+    var COUNT = narrow ? 16 : 32;
+    pit.innerHTML = "";
+    var items = [];
+    for (var i = 0; i < COUNT; i++) {
+      var label = POOL[(Math.random() * POOL.length) | 0];
+      var w = base, h = Math.round(w * 86 / 68);
+      var el = document.createElement("span");
+      el.className = "tile drawn"; el.setAttribute("aria-hidden", "true");
+      el.style.width = w + "px"; el.style.height = h + "px";
+      el.innerHTML = archiveIcon(label);
+      el.style.transform = "translate(" + (W / 2 - w / 2) + "px,-3000px)";
+      pit.appendChild(el);
+      items.push({ el: el, body: null, w: w, h: h });
+    }
+    function draw() {
+      items.forEach(function (it) {
+        var b = it.body;
+        if (!b) return;
+        it.el.style.transform = "translate(" + (b.position.x - it.w / 2).toFixed(1) + "px," + (b.position.y - it.h / 2).toFixed(1) + "px) rotate(" + b.angle.toFixed(3) + "rad)";
+      });
+    }
+    Events.on(engine, "afterUpdate", draw);
+
+    function drop() {
+      // rain them down at random, a little more often near the middle, so they pile into a mound
+      items.forEach(function (it, k) {
+        setTimeout(function () {
+          var g = (Math.random() + Math.random() + Math.random() + Math.random() - 2) / 2; // about -1..1, bunched toward 0
+          var x = Math.min(W - it.w / 2, Math.max(it.w / 2, W / 2 + g * Math.min(W * (narrow ? .42 : .3), 420)));
+          it.body = Bodies.rectangle(x, -it.h - Math.random() * 120, it.w, it.h, {
+            chamfer: { radius: it.w < 50 ? 3 : 4 }, restitution: .18, friction: .9, frictionStatic: 1.2, frictionAir: .015, density: .0018,
+            angle: (Math.random() - .5) * 1.6
+          });
+          Body.setVelocity(it.body, { x: (Math.random() - .5) * 3, y: Math.random() * 2 });
+          Body.setAngularVelocity(it.body, (Math.random() - .5) * .2);
+          Composite.add(engine.world, it.body);
+        }, k * 70 + Math.random() * 110);
+      });
+    }
+
+    // dragging: pin the grabbed spot to the pointer with a springy constraint
+    function local(e) { var r = pit.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    items.forEach(function (it) {
+      var pin = null;
+      it.el.addEventListener("pointerdown", function (e) {
+        if (!it.body) return;
+        e.preventDefault();
+        it.el.setPointerCapture(e.pointerId);
+        it.el.classList.add("held");
+        var p = local(e), b = it.body;
+        Sleeping.set(b, false);
+        pin = Constraint.create({ pointA: p, bodyB: b, pointB: { x: p.x - b.position.x, y: p.y - b.position.y }, angleB: b.angle, stiffness: .18, damping: .08, length: 0 });
+        Composite.add(engine.world, pin);
+      });
+      it.el.addEventListener("pointermove", function (e) { if (pin) { pin.pointA = local(e); Sleeping.set(it.body, false); } });
+      function release() { if (pin) { Composite.remove(engine.world, pin); pin = null; it.el.classList.remove("held"); } }
+      it.el.addEventListener("pointerup", release);
+      it.el.addEventListener("pointercancel", release);
     });
+
+    // keep the walls at the pit's edges when the window changes size
+    window.addEventListener("resize", function () {
+      W = pit.clientWidth; H = pit.clientHeight;
+      Body.setPosition(floor, { x: W / 2, y: H + T / 2 });
+      Body.setPosition(left, { x: -T / 2, y: H - 1500 });
+      Body.setPosition(right, { x: W + T / 2, y: H - 1500 });
+      items.forEach(function (it) {
+        if (!it.body) return;
+        Body.setPosition(it.body, { x: Math.min(W - it.w / 2, Math.max(it.w / 2, it.body.position.x)), y: Math.min(it.body.position.y, H - it.h / 2) });
+        Sleeping.set(it.body, false);
+      });
+    });
+
+    // only simulate while the pit is on screen
+    var dropped = false, running = false;
+    new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting) {
+        if (!running) { Runner.run(runner, engine); running = true; }
+        if (!dropped && es[0].intersectionRatio > .35) { dropped = true; setTimeout(drop, 200); }
+      } else if (running) { Runner.stop(runner); running = false; }
+    }, { threshold: [0, .35, .6] }).observe(pit);
+  })();
+
+  /* ---------- garbled names: drag a line across two real screenshots ---------- */
+  var win = $("#win"), range = $("#baRange"), sweeping = false;
+  function setPos(v) {
+    win.style.setProperty("--pos", v + "%");
+    $(".ba-tag.bad", win).style.opacity = v < 4 ? .35 : 1;
+    $(".ba-tag.good", win).style.opacity = v > 96 ? .35 : 1;
   }
-  var autoplay = !reduced;
-  $$("button", seg).forEach(function (b) { b.addEventListener("click", function () { autoplay = false; if (b.dataset.mode !== mode) setMode(b.dataset.mode, !reduced); }); });
-  if (autoplay) setMode("bad", false);
-  function playNames() { setTimeout(function () { if (autoplay) setMode("good", true); }, 1600); }
+  range.addEventListener("input", function () { sweeping = false; setPos(+range.value); });
+  setPos(+range.value);
+  function playNames() {
+    if (reduced) return;
+    sweeping = true;
+    var keys = [[0, 22], [700, 92], [1600, 92], [2700, 6], [3400, 6], [4300, 22]], t0 = performance.now();
+    (function step(now) {
+      if (!sweeping) return;
+      var t = now - t0, i = 1;
+      while (i < keys.length - 1 && t > keys[i][0]) i++;
+      var k = Math.max(0, Math.min(1, (t - keys[i - 1][0]) / (keys[i][0] - keys[i - 1][0])));
+      k = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      var v = keys[i - 1][1] + (keys[i][1] - keys[i - 1][1]) * k;
+      range.value = v; setPos(v);
+      if (t < keys[keys.length - 1][0]) requestAnimationFrame(step); else sweeping = false;
+    })(t0);
+  }
 
   /* ---------- the mascot: eyes, blinks, poses ---------- */
   var EYES = [
@@ -670,9 +1126,8 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
   var raceTip = null; // the bar the speed-section mascot watches
   var LOOKS = {
     names: function () {
-      if (pointer.inside && performance.now() - pointer.t < 2500) return null;
       var r = win.getBoundingClientRect();
-      return { x: r.left + r.width * .3, y: r.top + r.height * .55 };
+      return { x: r.left + r.width * (+range.value / 100), y: r.top + r.height * .5 };
     },
     race: function () {
       if (!raceTip) return null;
@@ -681,17 +1136,27 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
     }
   };
 
+  // the two four-point sparkles from the app, in the artwork's own coordinates
+  function star(cx, cy, size) {
+    var r = size / 2, k = size * 0.12;
+    return "M" + cx + " " + (cy - r) + " Q" + (cx + k) + " " + (cy - k) + " " + (cx + r) + " " + cy + " Q" + (cx + k) + " " + (cy + k) + " " + cx + " " + (cy + r) +
+      " Q" + (cx - k) + " " + (cy + k) + " " + (cx - r) + " " + cy + " Q" + (cx - k) + " " + (cy - k) + " " + cx + " " + (cy - r) + "Z";
+  }
+  function sparkles() {
+    return '<g class="spark"><path d="' + star(605, 14, 86) + '" fill="#fff"/><path d="' + star(540, 64, 43) + '" fill="#fff"/></g>';
+  }
   var pouches = $$("[data-pouch]").map(function (host, n) {
     var alt = $("img", host).getAttribute("alt");
     var id = "eye" + n;
-    var svg = '<svg viewBox="0 0 720 606" aria-hidden="true"><defs>' +
+    var svg = '<svg viewBox="0 0 720 606" aria-hidden="true" style="overflow:visible"><defs>' +
       EYES.map(function (e, k) { return '<clipPath id="' + id + k + '"><ellipse cx="' + e.cx + '" cy="' + e.cy + '" rx="' + e.rx + '" ry="' + e.ry + '"/></clipPath>'; }).join("") +
       "</defs>" +
       EYES.map(function (e, k) {
         return '<g clip-path="url(#' + id + k + ')"><g class="pupil"><image href="' + e.img + '" x="' + e.x + '" y="' + e.y + '" width="136" height="136"/></g>' +
+          '<ellipse class="smile" cx="' + e.cx + '" cy="' + (e.cy - e.ry + 2 * e.ry * 1.08 + e.ry * 1.1).toFixed(1) + '" rx="' + (e.rx * 1.5).toFixed(1) + '" ry="' + (e.ry * 1.1).toFixed(1) + '" fill="#4aabf9" stroke="#08336f" stroke-opacity=".55" stroke-width="' + (e.rx * 0.08).toFixed(1) + '"/>' +
           '<ellipse class="lid" cx="' + e.cx + '" cy="' + (e.cy - 6) + '" rx="' + (e.rx + 14) + '" ry="' + (e.ry + 8) + '" fill="#4aabf9" stroke="#2c7fd8" stroke-width="7"/></g>' +
           '<path class="shut" d="M' + (e.cx - 52) + " " + (e.cy + 4) + " Q" + e.cx + " " + (e.cy + 44) + " " + (e.cx + 52) + " " + (e.cy + 4) + '" fill="none" stroke="#123f86" stroke-width="11" stroke-linecap="round"/>';
-      }).join("") + "</svg>";
+      }).join("") + sparkles() + "</svg>";
     var p = { host: host, svg: null, pupils: [], look: LOOKS[host.dataset.look] || null, sleep: host.dataset.pose === "sleep",
       cur: EYES.map(function () { return { x: 0, y: 0, s: 1 }; }), wander: { x: 0, y: 0, next: 0 }, hover: false, visible: true,
       nextBlink: performance.now() + 1500 + Math.random() * 2500, wakeTimer: null };
@@ -700,15 +1165,22 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
     body.alt = alt; body.width = 720; body.height = 606;
     function ready() {
       if (--waiting) return;
-      host.innerHTML = ""; host.appendChild(body); host.insertAdjacentHTML("beforeend", svg);
-      p.svg = $("svg", host); p.pupils = $$(".pupil", host);
+      host.innerHTML = "";
+      var art = document.createElement("div"); art.className = "art";
+      art.appendChild(body); art.insertAdjacentHTML("beforeend", svg); host.appendChild(art);
+      p.art = art; p.svg = $("svg", host); p.pupils = $$(".pupil", host);
     }
     body.onload = ready;
     body.src = "assets/mascot-body.png";
     EYES.forEach(function (e) { var im = new Image(); im.onload = ready; im.src = e.img; });
     host.addEventListener("pointerenter", function () { p.hover = true; });
     host.addEventListener("pointerleave", function () { p.hover = false; });
+    p.taps = [];
+    host.addEventListener("mousedown", function (e) { if (e.detail > 1) e.preventDefault(); });
+    host.addEventListener("dragstart", function (e) { e.preventDefault(); });
+    if (!p.look && !p.sleep) host.classList.add("tap");
     host.addEventListener("click", function () {
+      if (!p.look && !p.sleep) { poke(p); return; }
       host.classList.remove("squish"); void host.offsetWidth; host.classList.add("squish");
       if (p.sleep) {
         // a sleeping one wakes up for a moment, then dozes off again
@@ -720,6 +1192,30 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
     if ("IntersectionObserver" in window) new IntersectionObserver(function (es) { p.visible = es[0].isIntersecting; }).observe(host);
     return p;
   });
+  // Click, as in the app: squish, then hop; smile with sparkles for a second. Six quick clicks: a full spin.
+  function poke(p) {
+    var now = performance.now();
+    p.taps = p.taps.filter(function (t) { return now - t < 2000; }).concat(now);
+    if (reduced) return;
+    p.host.animate([
+      { transform: "none" },
+      { transform: "scale(1.12, .86)", offset: .14 },
+      { transform: "scale(1.09, .9)", offset: .22 },
+      { transform: "translateY(-6%) scale(.97, 1.04)", offset: .36 },
+      { transform: "translateY(-10%)", offset: .48 },
+      { transform: "translateY(1%) scale(1.03, .97)", offset: .7 },
+      { transform: "translateY(-1.5%)", offset: .84 },
+      { transform: "none" }
+    ], { duration: 640, easing: "linear" });
+    p.host.classList.add("happy");
+    clearTimeout(p.happyTimer);
+    p.happyTimer = setTimeout(function () { p.host.classList.remove("happy"); }, 1000);
+    if (p.taps.length >= 6 && p.art) {
+      p.taps = [];
+      p.art.animate([{ transform: "perspective(900px) rotateY(0deg)" }, { transform: "perspective(900px) rotateY(380deg)", offset: .78 }, { transform: "perspective(900px) rotateY(360deg)" }],
+        { duration: 950, easing: "cubic-bezier(.3, .7, .4, 1)" });
+    }
+  }
   function blink(p) {
     p.host.classList.remove("blink"); void p.host.offsetWidth; p.host.classList.add("blink");
     setTimeout(function () { p.host.classList.remove("blink"); }, 200);
@@ -747,12 +1243,12 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
           var d = Math.hypot(dx, dy) || 1, k2 = Math.min(1, d / (60 + 240 * s));
           tx = dx / d * 32 * k2; ty = dy / d * 24 * k2;
         } else { tx = p.wander.x; ty = p.wander.y; }
-        var c = p.cur[k], ts = p.hover || (p.look === LOOKS.names && mode === "good") ? 1.12 : 1;
+        var c = p.cur[k], ts = p.host.classList.contains("happy") ? 1.16 : p.hover || (p.look === LOOKS.names && +range.value < 20) ? 1.12 : 1;
         c.x += (tx - e.nx - c.x) * a; c.y += (ty - e.ny - c.y) * a; c.s += (ts - c.s) * a;
         p.pupils[k].style.transform = "translate(" + c.x.toFixed(2) + "px," + c.y.toFixed(2) + "px) scale(" + c.s.toFixed(3) + ")";
       });
       // the peeking one squints at garbled names and opens wide at fixed ones
-      if (p.look === LOOKS.names) p.host.classList.toggle("squint", mode === "bad");
+      if (p.look === LOOKS.names) p.host.classList.toggle("squint", +range.value > 70);
       if (!reduced && !p.host.classList.contains("sleep") && now > p.nextBlink) {
         blink(p);
         if (Math.random() < .2) setTimeout(function () { blink(p); }, 260);
@@ -793,42 +1289,256 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
     links.forEach(function (a) { var t = $(a.getAttribute("href")); if (t) spy.observe(t); });
   }
 
-  /* ---------- speed race ---------- */
-  var chart = $("#chart");
+  /* ---------- speed race: every bar on the same clock, at a steady pace ---------- */
+  var chart = $("#chart"), raceRun = 0;
+  var RACE_MS = 1700, LONGEST = 14.7; // 14.7 measured seconds play out in 1.7 real ones
   function race() {
-    var rows = $$(".rrow", chart);
-    rows.forEach(function (row, ri) {
-      var fills = $$(".fill", row), stat = $(".stat b", row), x = +stat.dataset.x;
-      var max = Math.max.apply(null, fills.map(function (f) { return +f.dataset.s; }));
-      var delay = ri * 180;
-      fills.forEach(function (f, fi) {
-        var s = +f.dataset.s, dec = (f.dataset.s.split(".")[1] || "").length, dur = 2400 * s / max, start = null;
-        if (ri === 0 && fi === 0) raceTip = f;
-        f.style.width = "0";
-        f.textContent = (0).toFixed(dec) + " s";
-        function step(now) {
-          if (start === null) start = now + delay;
-          var t = Math.max(0, Math.min(1, (now - start) / dur));
-          var e = 1 - Math.pow(1 - t, 2);
-          f.style.width = "calc(var(--w) * " + e.toFixed(4) + ")";
-          f.textContent = (s * e).toFixed(dec) + " s";
-          if (fi === 0) stat.textContent = (1 + (x - 1) * e).toFixed(1) + "×";
-          if (t < 1) requestAnimationFrame(step);
-          else { f.style.width = ""; if (ri === 0 && fi === 0) setTimeout(function () { raceTip = null; }, 1600); }
-        }
-        requestAnimationFrame(step);
-      });
+    var id = ++raceRun, t0 = null;
+    var lanes = $$(".lane", chart).map(function (l) {
+      var t = $(".t", l), sec = +t.dataset.s;
+      return { el: l, bar: $("i", l), t: t, sec: sec, dec: (t.dataset.s.split(".")[1] || "").length, w: l.querySelector("i").style.getPropertyValue("--w") };
     });
+    lanes.forEach(function (l) { l.el.classList.remove("fin"); l.bar.style.width = "0"; l.t.textContent = (0).toFixed(l.dec) + " s"; });
+    $$(".rrow", chart).forEach(function (r) { r.classList.remove("done"); });
+    raceTip = lanes[0].bar;
+    (function step(now) {
+      if (id !== raceRun) return;
+      if (t0 === null) t0 = now;
+      var clock = Math.min(LONGEST, (now - t0) / RACE_MS * LONGEST), running = false;
+      lanes.forEach(function (l) {
+        var s2 = Math.min(clock, l.sec);
+        l.bar.style.width = "calc(var(--w) * " + (s2 / l.sec).toFixed(4) + ")";
+        l.t.textContent = s2.toFixed(l.dec) + " s";
+        if (s2 >= l.sec) l.el.classList.add("fin"); else running = true;
+      });
+      $$(".rrow", chart).forEach(function (r) { if ($$(".lane.fin", r).length === 2) r.classList.add("done"); });
+      if (running) requestAnimationFrame(step);
+      else { lanes.forEach(function (l) { l.bar.style.width = ""; }); setTimeout(function () { raceTip = null; }, 1200); }
+    })(performance.now());
   }
   $("#replay").addEventListener("click", function () { if (!reduced) race(); });
+  if (reduced) $$(".lane, .rrow", chart).forEach(function (el) { el.classList.add(el.classList.contains("lane") ? "fin" : "done"); });
 
-  /* ---------- quick look key ---------- */
-  var key = $("#key");
-  function pressKey() { key.classList.add("down"); setTimeout(function () { key.classList.remove("down"); }, 180); }
-  key.addEventListener("click", function () {
-    var ql = $("#ql"); pressKey(); ql.classList.remove("in"); void ql.offsetWidth;
-    setTimeout(function () { ql.classList.add("in"); }, 120);
+  /* ---------- quick look: Space on the selected file opens the preview out of it ---------- */
+  var ql = $("#ql"), key = $("#key"), qlPop = $("#qlPop"), qlFile = $("#qlFile");
+  function aimPreview() {
+    // grow the preview out of the selected file's icon, like Quick Look does
+    var q = ql.getBoundingClientRect(), f = qlFile.getBoundingClientRect();
+    qlPop.style.setProperty("--ox", (f.left - q.left + 18 - qlPop.offsetLeft) + "px");
+    qlPop.style.setProperty("--oy", (f.top - q.top + f.height / 2 - qlPop.offsetTop) + "px");
+  }
+  function pressKey() { key.classList.add("down"); setTimeout(function () { key.classList.remove("down"); }, 160); }
+  function toggleQL(open) { aimPreview(); pressKey(); setTimeout(function () { ql.classList.toggle("open", open); }, 90); }
+  key.addEventListener("click", function () { toggleQL(!ql.classList.contains("open")); });
+  function playQL() { setTimeout(function () { if (!ql.classList.contains("open")) toggleQL(true); }, 900); }
+  if (reduced) ql.classList.add("open");
+
+  /* ---------- cards you can swipe through, with prev / next ---------- */
+  var rail = $("#rail"), prev = $("#railPrev"), next = $("#railNext");
+  function step() { var c = $(".wcard", rail); return c.getBoundingClientRect().width + 28; }
+  function railState() {
+    prev.disabled = rail.scrollLeft < 8;
+    next.disabled = rail.scrollLeft > rail.scrollWidth - rail.clientWidth - 8;
+  }
+  prev.addEventListener("click", function () { rail.scrollBy({ left: -step(), behavior: reduced ? "auto" : "smooth" }); });
+  next.addEventListener("click", function () { rail.scrollBy({ left: step(), behavior: reduced ? "auto" : "smooth" }); });
+  rail.addEventListener("scroll", railState, { passive: true });
+  window.addEventListener("resize", railState);
+  railState();
+
+  /* ---------- the card demos: the active card plays its demo; hover replays it ---------- */
+  function demoRunner(card, steps, reset, finish) {
+    var timers = [], playing = false;
+    function stop() { timers.forEach(clearTimeout); timers = []; playing = false; }
+    function play() {
+      if (playing) return;
+      stop(); playing = true; reset();
+      var t = 0;
+      steps.forEach(function (st) { t += st[0]; timers.push(setTimeout(st[1], t)); });
+      timers.push(setTimeout(function () { playing = false; }, t + 400));
+    }
+    finish(); // cards you're not on show how it ends
+    card._demo = { play: play, rest: function () { stop(); finish(); } };
+    card.addEventListener("mouseenter", function () { if (card.classList.contains("active") && !reduced) play(); });
+  }
+  $$(".wcard").forEach(function (card) {
+    var d = card.dataset.demo, cls = function (sel, c, on) { $$(sel, card).forEach(function (el) { el.classList.toggle(c, on); }); };
+    if (d === "finder") {
+      var stage = $(".stage", card), cur = $(".cur", card), menu = $(".cmenu", card), go = $(".go", card), zipf = $(".zipf", card);
+      var moveTo = function (x, y) { cur.style.transform = "translate(" + x + "px," + y + "px)"; };
+      var onItem = function () { return [menu.offsetLeft + go.offsetLeft + 60, menu.offsetTop + go.offsetTop + go.offsetHeight / 2 - 4]; };
+      demoRunner(card, [
+        [250, function () { moveTo(zipf.offsetLeft + 52, zipf.offsetTop + 34); }],
+        [750, function () { zipf.classList.add("sel"); }],
+        [250, function () { menu.classList.add("on"); }],
+        [350, function () { var p = onItem(); moveTo(p[0], p[1]); }],
+        [650, function () { go.classList.add("hl"); }],
+        [450, function () { go.classList.add("flash"); }],
+        [120, function () { menu.classList.remove("on"); go.classList.remove("hl", "flash"); }],
+        [300, function () { cls(".outf", "on", true); zipf.classList.remove("sel"); moveTo(stage.clientWidth - 60, stage.clientHeight - 30); }]
+      ], function () {
+        cur.style.transition = "none"; moveTo(stage.clientWidth - 60, stage.clientHeight - 30); void cur.offsetWidth; cur.style.transition = "";
+        menu.classList.remove("on"); go.classList.remove("hl", "flash"); zipf.classList.remove("sel"); cls(".outf", "on", false);
+      }, function () { cls(".outf", "on", true); moveTo(stage.clientWidth - 60, stage.clientHeight - 30); });
+    }
+    if (d === "ql") {
+      var key = $(".bigkey", card), pv = $(".qlmini", card);
+      demoRunner(card, [
+        [600, function () { key.classList.add("down"); }],
+        [140, function () { key.classList.remove("down"); pv.classList.add("on"); }]
+      ], function () { pv.classList.remove("on"); key.classList.remove("down"); },
+         function () { pv.classList.add("on"); });
+    }
+    if (d === "shortcuts") {
+      var acts = $$(".action", card), ban = $(".banner", card), steps = [];
+      acts.forEach(function (a, i) {
+        steps.push([i ? 620 : 500, function () { a.classList.add("run"); }]);
+        steps.push([560, function () { a.classList.add("ok"); }]);
+      });
+      steps.push([250, function () { ban.classList.add("on"); }]);
+      demoRunner(card, steps, function () { acts.forEach(function (a) { a.classList.remove("run", "ok"); }); ban.classList.remove("on"); },
+        function () { acts.forEach(function (a) { a.classList.add("run", "ok"); }); ban.classList.add("on"); });
+    }
+    if (d === "script") {
+      var lines = $$(".ln", card), res = $(".results", card), st = [];
+      lines.forEach(function (l, i) { st.push([i ? 520 : 300, function () { l.classList.add("on"); }]); });
+      st.push([700, function () { res.classList.add("on"); }]);
+      demoRunner(card, st, function () { lines.forEach(function (l) { l.classList.remove("on"); }); res.classList.remove("on"); },
+        function () { lines.forEach(function (l) { l.classList.add("on"); }); res.classList.add("on"); });
+    }
   });
+
+  /* ---------- the card you've scrolled to turns blue and plays its demo ---------- */
+  var cards = $$(".wcard", rail), active = -1, railSeen = false;
+  function pickActive() {
+    var base = cards[0].offsetLeft, max = rail.scrollWidth - rail.clientWidth, idx = 0, best = Infinity;
+    if (rail.scrollLeft >= max - 8) idx = cards.length - 1;
+    else cards.forEach(function (c, i) { var d = Math.abs(c.offsetLeft - base - rail.scrollLeft); if (d < best) { best = d; idx = i; } });
+    if (idx === active) return;
+    active = idx;
+    cards.forEach(function (c, i) { c.classList.toggle("active", i === idx); if (i !== idx && c._demo) c._demo.rest(); });
+    if (railSeen && !reduced && cards[idx]._demo) cards[idx]._demo.play();
+  }
+  var pickTimer = null;
+  rail.addEventListener("scroll", function () { clearTimeout(pickTimer); pickTimer = setTimeout(pickActive, 90); }, { passive: true });
+  pickActive();
+  if ("IntersectionObserver" in window) new IntersectionObserver(function (es) {
+    var e = es[0];
+    if (e.intersectionRatio > .4 && !railSeen) { railSeen = true; if (!reduced && cards[active]._demo) cards[active]._demo.play(); }
+    else if (!e.isIntersecting) { railSeen = false; if (cards[active]._demo) cards[active]._demo.rest(); }
+  }, { threshold: [0, .4] }).observe(rail);
+
+  /* ---------- the compress sheet: a working copy of the real one ---------- */
+  (function () {
+    var stage = $("#cstage"); if (!stage) return;
+    var sheet = $("#csheet"), ext = $("#csExt"), lvl = $("#csLevel"), hint = $("#csHint");
+    var pwSec = $("#csPwSec"), pw = $("#csPw"), pwField = $("#csPwField"), eye = $("#csEye"), hide = $("#csHide"), zipNote = $("#csZipNote");
+    var splitSec = $("#csSplitSec"), selEn = $("#csSplitEn"), selZh = $("#csSplitZh"), custom = $("#csCustom"), go = $("#csGo");
+    var state = { format: "7z", level: 5, pw: false, split: "none", preset: -1 };
+    var HINTS = [["No compression, just packing — fastest", "不压缩，只打包，最快"], ["Speed first, slightly larger", "速度优先，体积稍大"],
+      ["Balanced speed and size — recommended", "速度和体积兼顾，推荐"], ["Smaller, a bit slower", "更小的体积，稍慢一些"], ["Maximum compression — slowest, smallest", "极限压缩，最慢，体积最小"]];
+    function both(en, zh) { return '<span lang="en">' + en + '</span><span lang="zh-Hans">' + zh + "</span>"; }
+    function names() { return $$(".cs-input", sheet); }
+    function currentName() { var l = root.getAttribute("data-lang") === "zh" ? 1 : 0; return names()[l].value.trim(); }
+    function render(prevFormat) {
+      $$(".fchip", sheet).forEach(function (c) { c.classList.toggle("on", c.dataset.format === state.format); });
+      $$(".pchip[data-format]", sheet).forEach(function (c, i) { c.classList.toggle("on", i === state.preset); });
+      if (prevFormat && prevFormat !== state.format) { ext.classList.add("flip"); setTimeout(function () { ext.textContent = "." + state.format; ext.classList.remove("flip"); }, 160); }
+      else ext.textContent = "." + state.format;
+      lvl.value = state.level; lvl.style.setProperty("--fill", (state.level / 9 * 100) + "%");
+      var h = state.level === 0 ? 0 : state.level <= 3 ? 1 : state.level <= 6 ? 2 : state.level <= 8 ? 3 : 4;
+      hint.innerHTML = both(HINTS[h][0], HINTS[h][1]);
+      var canLock = state.format === "zip" || state.format === "7z";
+      pwSec.classList.toggle("off", !canLock); splitSec.classList.toggle("off", !canLock);
+      pw.setAttribute("aria-checked", state.pw ? "true" : "false"); pwSec.classList.toggle("open", state.pw);
+      hide.style.display = state.format === "7z" ? "" : "none"; zipNote.style.display = state.format === "7z" ? "none" : "";
+      selEn.value = selZh.value = state.split; custom.classList.toggle("on", state.split === "custom");
+      go.disabled = (state.pw && canLock && !pwField.value) || !currentName();
+    }
+    function edited() { state.preset = -1; }
+    $$(".fchip", sheet).forEach(function (c) { c.addEventListener("click", function () { var p = state.format; state.format = c.dataset.format; edited(); render(p); }); });
+    $$(".pchip[data-format]", sheet).forEach(function (c, i) {
+      c.addEventListener("click", function () {
+        var p = state.format;
+        state.format = c.dataset.format; state.level = +c.dataset.level; state.pw = c.dataset.pw === "1"; state.split = c.dataset.split; state.preset = i;
+        render(p);
+      });
+    });
+    lvl.addEventListener("input", function () { state.level = +lvl.value; edited(); render(); });
+    pw.addEventListener("click", function () { state.pw = !state.pw; render(); if (state.pw) setTimeout(function () { pwField.focus(); }, 200); });
+    pwField.addEventListener("input", function () { render(); });
+    eye.addEventListener("click", function () { var show = pwField.type === "password"; pwField.type = show ? "text" : "password"; eye.classList.toggle("on", show); });
+    [selEn, selZh].forEach(function (sel) { sel.addEventListener("change", function () { state.split = sel.value; edited(); render(); }); });
+    names().forEach(function (n) { n.addEventListener("input", function () { render(); }); });
+    // save as preset: a small popover, like the app's
+    var pop = $("#csPop"), popName = $("#csPopName"), popSave = $("#csPopSave");
+    $("#csSave").addEventListener("click", function () { pop.hidden = !pop.hidden; if (!pop.hidden) popName.focus(); });
+    popName.placeholder = root.getAttribute("data-lang") === "zh" ? "预设名称，例如“给设计组”" : "Preset name, e.g. “For the design team”";
+    popName.addEventListener("input", function () { popSave.disabled = !popName.value.trim(); });
+    popSave.addEventListener("click", function () {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "pchip"; b.dataset.format = state.format; b.dataset.level = state.level; b.dataset.pw = state.pw ? "1" : "0"; b.dataset.split = state.split;
+      b.innerHTML = '<i><svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></svg></i>';
+      b.appendChild(document.createTextNode(popName.value.trim()));
+      $("#csSave").before(b);
+      var all = $$(".pchip[data-format]", sheet), idx = all.indexOf(b);
+      b.addEventListener("click", function () { var p = state.format; state.format = b.dataset.format; state.level = +b.dataset.level; state.pw = b.dataset.pw === "1"; state.split = b.dataset.split; state.preset = $$(".pchip[data-format]", sheet).indexOf(b); render(p); });
+      state.preset = idx; popName.value = ""; popSave.disabled = true; pop.hidden = true; render();
+    });
+    // compress / cancel: the sheet closes like a real one, and you see what happened
+    var ring = $("#csRing"), file = $("#csFile"), again = $("#csAgain");
+    var SPLIT = { none: "", mb100: "100 MB", mb700: "700 MB", gb2: "2 GB", fat32: "4 GB", custom: "" };
+    function close(done) {
+      stage.classList.add("closed");
+      ring.classList.remove("go", "gone"); file.classList.remove("on");
+      if (!done) {
+        ring.classList.add("gone");
+        again.innerHTML = both("Open the Compress window again", "重新打开压缩窗口");
+        return;
+      }
+      again.innerHTML = "";
+      void ring.offsetWidth; ring.classList.add("go");
+      setTimeout(function () {
+        ring.classList.add("gone");
+        var nm = currentName() + "." + state.format + (state.split !== "none" && (state.format === "zip" || state.format === "7z") ? (state.format === "zip" ? "" : ".001") : "");
+        $("#csFileName").textContent = nm;
+        var meta = [state.format.toUpperCase()];
+        if (state.pw && (state.format === "zip" || state.format === "7z")) meta.push(root.getAttribute("data-lang") === "zh" ? "已加密" : "Encrypted");
+        if (state.split !== "none" && SPLIT[state.split]) meta.push((root.getAttribute("data-lang") === "zh" ? "分卷 " : "Split ") + SPLIT[state.split]);
+        $("#csFileMeta").textContent = meta.join(" · ");
+        file.classList.remove("on"); void file.offsetWidth; file.classList.add("on");
+        again.innerHTML = both("Compress again", "再压缩一次");
+      }, 950);
+    }
+    go.addEventListener("click", function () { if (!go.disabled) close(true); });
+    $("#csCancel").addEventListener("click", function () { close(false); });
+    again.addEventListener("click", function () { stage.classList.remove("closed"); });
+    $("#langBtn").addEventListener("click", function () { setTimeout(function () { popName.placeholder = root.getAttribute("data-lang") === "zh" ? "预设名称，例如“给设计组”" : "Preset name, e.g. “For the design team”"; pwField.placeholder = root.getAttribute("data-lang") === "zh" ? "密码" : "Password"; render(); }, 0); });
+    pwField.placeholder = root.getAttribute("data-lang") === "zh" ? "密码" : "Password";
+    function edges(el, a, b, vertical) {
+      function upd() {
+        var pos = vertical ? el.scrollTop : el.scrollLeft, max = vertical ? el.scrollHeight - el.clientHeight : el.scrollWidth - el.clientWidth;
+        el.classList.toggle(a, pos > 2); el.classList.toggle(b, pos < max - 2);
+      }
+      el.addEventListener("scroll", upd, { passive: true });
+      window.addEventListener("resize", upd);
+      new MutationObserver(upd).observe(el, { subtree: true, attributes: true, childList: true });
+      upd();
+    }
+    edges($(".cs-scroll", sheet), "more-up", "more-down", true);
+    edges($(".cs-chips", sheet), "more-left", "more-right", false);
+    render();
+  })();
+
+  /* ---------- entrance: each section's text and picture slide in once ---------- */
+  var enters = $$(".enter");
+  if (!("IntersectionObserver" in window) || reduced) enters.forEach(function (el) { el.classList.add("seen"); });
+  else {
+    var eo = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("seen"); eo.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -15% 0px" });
+    enters.forEach(function (el) { eo.observe(el); });
+  }
 
   /* ---------- reveal on scroll ---------- */
   var items = $$(".rise");
@@ -842,15 +1552,12 @@ footer .langs-line { flex-basis: 100%; font-size: 13px; line-height: 1.7; margin
       var el = e.target;
       el.classList.add("in");
       io.unobserve(el);
-      if (el.id === "ql") setTimeout(pressKey, 150);
+      if (el.id === "ql") playQL();
       if (el.id === "ba-wrap") playNames();
       if (el.id === "chart") setTimeout(race, 300);
     });
   }, { rootMargin: "0px 0px -12% 0px" });
   items.forEach(function (el) {
-    var sibs = $$(":scope > .rise", el.parentElement);
-    el.style.transitionDelay = sibs.indexOf(el) * 90 + "ms";
-    el.addEventListener("transitionend", function clear(ev) { if (ev.target === el && ev.propertyName === "opacity") { el.style.transitionDelay = ""; el.removeEventListener("transitionend", clear); } });
     io.observe(el);
   });
 })();
