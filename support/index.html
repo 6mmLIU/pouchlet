@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pouch Support</title>
+<link rel="icon" href="../icon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+  <header>
+    <a href="../"><img src="../icon.png" alt="Pouch app icon"></a>
+    <div>
+      <h1>Support</h1>
+      <div class="muted">Pouch for Mac</div>
+    </div>
+  </header>
+
+  <div class="card">
+    Found a bug or have an idea? <a href="https://github.com/6mmLIU/pouch/issues">Open an issue on GitHub</a>. Please include your macOS version and, if you can, the kind of archive (zip, 7z, rar…).
+  </div>
+
+  <h2>Common questions</h2>
+
+  <h3>Why does Pouch ask to allow a folder?</h3>
+  <p>Mac App Store apps can only touch what you give them. To extract next to an archive, Pouch needs that folder, so it asks once and remembers. To be asked less, choose a folder higher up, such as your home folder. Manage these in Settings › General › Folder Access.</p>
+
+  <h3>The Finder menu doesn’t show up.</h3>
+  <p>Turn on Settings › Extensions › Finder Context Menu, then allow “Pouch” when System Settings opens (General › Login Items &amp; Extensions).</p>
+
+  <h3>Space doesn’t preview archives.</h3>
+  <p>Turn on Settings › Extensions › Preview archives with Space. If the preview’s buttons don’t open Pouch, allow “Pouch” under Login Items in System Settings.</p>
+
+  <h3>File names look garbled.</h3>
+  <p>Pouch detects Chinese, Japanese and Korean names from Windows automatically. If one still looks wrong, open the archive and pick another encoding from the toolbar’s encoding menu.</p>
+
+  <h3>Can Pouch create RAR files?</h3>
+  <p>No. RAR is a licensed format; Pouch can open and extract it but not create it. Use 7Z or ZIP instead.</p>
+
+  <section class="lang" lang="zh-Hans">
+    <h2>常见问题（简体中文）</h2>
+    <p>遇到问题或有建议？请<a href="https://github.com/6mmLIU/pouch/issues">在 GitHub 上提交 issue</a>，并附上 macOS 版本和压缩包类型。</p>
+    <h3>为什么 Pouch 会请求允许访问文件夹？</h3>
+    <p>App Store 应用只能使用你交给它的文件。解压到压缩包旁边需要那个文件夹的权限，所以 Pouch 会询问一次并记住。选择更上层的文件夹（比如个人文件夹）就能少被询问。可在“设置 › 通用 › 文件夹访问权限”中管理。</p>
+    <h3>“访达”右键菜单里没有 Pouch？</h3>
+    <p>在“设置 › 扩展”中打开“访达右键菜单”，然后在弹出的“系统设置”中允许“Pouch”。</p>
+    <h3>按空格不能预览压缩包？</h3>
+    <p>在“设置 › 扩展”中打开“按空格预览压缩包”。如果预览里的按钮打不开 Pouch，请在“系统设置”的“登录项”中允许“Pouch”。</p>
+    <h3>文件名乱码？</h3>
+    <p>Pouch 会自动识别来自 Windows 的中日韩文件名；如果仍有乱码，可在工具栏的编码菜单中换一种编码。</p>
+  </section>
+
+  <footer>© 2026 Pouch</footer>
+</main>
+</body>
+</html>
