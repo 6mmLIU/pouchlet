@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pouchlet — Peek inside before you unzip</title>
+<title>Pouchlet — 2× faster. No garbled names.</title>
 <meta name="description" content="Pouchlet opens RAR, 7Z, ZIP and more on your Mac — or lets you look inside first. No garbled names, no junk files, nothing leaves your Mac.">
-<meta property="og:title" content="Pouchlet — Peek inside before you unzip">
+<meta property="og:title" content="Pouchlet — 2× faster. No garbled names.">
 <meta property="og:description" content="The friendliest way to open and make archives on your Mac.">
 <meta property="og:image" content="https://6mmliu.github.io/pouchlet/assets/mascot.png">
 <link rel="icon" href="icon.png">
@@ -74,6 +74,7 @@ nav.top .links a:hover { color: var(--ink); text-decoration: none; }
 .mascot { width: min(320px, 70vw); margin: 0 auto 8px; animation: bob 3.2s ease-in-out infinite; filter: drop-shadow(0 26px 30px rgba(30, 80, 170, .22)); }
 @keyframes bob { 50% { transform: translateY(-10px) rotate(-1.5deg); } }
 .hero h1 { font-size: clamp(44px, 7.4vw, 92px); line-height: 1.02; }
+.hero h1 .hl { white-space: normal; }
 .hero .lead { max-width: 640px; margin-inline: auto; }
 .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
 .btn { display: inline-flex; align-items: center; gap: 10px; font: 600 17px var(--text); padding: 15px 26px; border-radius: 999px; border: 0; }
@@ -207,7 +208,7 @@ footer a { color: var(--muted); }
 <header class="hero">
   <div class="wrap">
     <img class="mascot" src="assets/mascot.png" alt="Pouchlet, a small blue pouch with a zipper and big eyes">
-    <h1><span lang="en">Peek inside<br>before you <span class="hl">unzip.</span></span><span lang="zh-Hans">不解压，<span class="hl">先看看。</span></span></h1>
+    <h1><span lang="en">2× faster.<br><span class="hl">No garbled names.</span></span><span lang="zh-Hans">压缩快一倍，<br><span class="hl">解压不乱码。</span></span></h1>
     <p class="lead">
       <span lang="en">Pouchlet opens RAR, 7Z, ZIP and more on your Mac — or lets you look inside first and take only what you need.</span>
       <span lang="zh-Hans">Pouchlet 帮你打开 RAR、7Z、ZIP 等各种压缩包，也可以先看看里面有什么，只拿你需要的。</span>
@@ -431,7 +432,7 @@ footer a { color: var(--muted); }
   function setLang(l) {
     root.setAttribute("data-lang", l);
     root.setAttribute("lang", l === "zh" ? "zh-Hans" : "en");
-    document.title = l === "zh" ? "Pouchlet — 不解压，先看看" : "Pouchlet — Peek inside before you unzip";
+    document.title = l === "zh" ? "Pouchlet — 压缩快一倍，解压不乱码" : "Pouchlet — 2× faster. No garbled names.";
   }
   var saved = null;
   try { saved = localStorage.getItem("pouchlet-lang"); } catch (e) {}
